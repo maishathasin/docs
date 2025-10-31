@@ -1,0 +1,654 @@
+---
+title: "LeLamp Troubleshooting Guide"
+description: "Comprehensive troubleshooting guide for common LeLamp issues with step-by-step solutions and diagnostic procedures"
+---
+
+# LeLamp Troubleshooting Guide
+
+This comprehensive guide covers common issues encountered during LeLamp assembly and operation, with detailed solutions and diagnostic procedures.
+
+## Quick Diagnostic Checklist
+
+Before diving into specific issues, run through this quick diagnostic checklist:
+
+<AccordionGroup>
+  <Accordion title="Power and Connections">
+    - [ ] All power supplies connected and providing correct voltage (5V)
+    - [ ] USB communication cable securely connected
+    - [ ] All servo cables properly connected in daisy chain
+    - [ ] ReSpeaker Hat properly seated on Raspberry Pi
+    - [ ] No loose connections or damaged cables
+  </Accordion>
+  
+  <Accordion title="System Status">
+    - [ ] Raspberry Pi boots successfully (green LED activity)
+    - [ ] SSH connection works reliably
+    - [ ] LeLamp runtime software installed and accessible
+    - [ ] All system tests pass without errors
+    - [ ] No error messages in system logs
+  </Accordion>
+  
+  <Accordion title="Component Function">
+    - [ ] Individual servo response test passes
+    - [ ] LED matrix displays colors and patterns
+    - [ ] Audio input/output functions correctly
+    - [ ] Camera captures images (if applicable)
+    - [ ] Network connectivity stable
+  </Accordion>
+</AccordionGroup>
+
+## Hardware Issues
+
+### Power and Electrical Problems
+
+<AccordionGroup>
+  <Accordion title="LeLamp Won't Power On">
+    **Symptoms**: No LED indicators, no servo movement, Pi doesn't boot
+    
+    **Diagnostic Steps**:
+    1. **Check power supply voltages** with multimeter
+    2. **Verify power supply current capacity** (minimum 2A each)
+    3. **Test power cables** for continuity and proper connection
+    4. **Check fuses** in power supplies (if applicable)
+    
+    **Solutions**:
+    - Replace faulty power supplies with proper 5V 2A units
+    - Use shorter, higher-quality power cables
+    - Ensure power supplies can handle startup current surge
+    - Check wall outlet with known working device
+    
+    <Warning>
+    Never exceed 5V on any LeLamp component. Higher voltages can cause permanent damage.
+    </Warning>
+  </Accordion>
+  
+  <Accordion title="Intermittent Power Issues">
+    **Symptoms**: Random shutdowns, servo stuttering, Pi reboots unexpectedly
+    
+    **Diagnostic Steps**:
+    1. **Monitor voltage under load** with multimeter
+    2. **Check for voltage drops** during servo movement
+    3. **Inspect all connections** for looseness or corrosion
+    4. **Test with different power supplies**
+    
+    **Solutions**:
+    - Upgrade to higher-capacity power supplies (3A recommended)
+    - Add bulk capacitors near servo driver for power smoothing
+    - Use thicker power cables to reduce voltage drop
+    - Separate power supplies for Pi and servos (recommended configuration)
+  </Accordion>
+  
+  <Accordion title="Servo Driver Not Detected">
+    **Symptoms**: Cannot find servo port, communication timeouts
+    
+    **Diagnostic Steps**:
+    ```bash
+    # Check USB devices
+    lsusb
+    
+    # Check serial ports
+    ls /dev/tty*
+    
+    # Monitor system messages
+    sudo dmesg | tail -20
+    ```
+    
+    **Solutions**:
+    - Try different USB cable (data cables, not just charging cables)
+    - Test different USB ports on Raspberry Pi
+    - Check servo driver power supply
+    - Verify servo driver firmware is compatible
+    - Restart both Pi and servo driver
+  </Accordion>
+</AccordionGroup>
+
+### Servo and Mechanical Issues
+
+<AccordionGroup>
+  <Accordion title="Servo Not Responding">
+    **Symptoms**: Individual servo doesn't move or respond to commands
+    
+    **Diagnostic Steps**:
+    1. **Test servo individually** outside of daisy chain
+    2. **Check servo ID configuration** matches expected value
+    3. **Verify servo cable integrity** and connections
+    4. **Test with known working servo** in same position
+    
+    **Solutions**:
+    - Reconfigure servo ID using setup script
+    - Replace damaged servo cables
+    - Reset servo to factory defaults and reconfigure
+    - Replace faulty servo if hardware failure confirmed
+    
+    ```bash
+    # Test individual servo
+    sudo uv run -m lelamp.test.test_single_servo --id your_lamp_name --servo 1
+    ```
+  </Accordion>
+  
+  <Accordion title="Mechanical Binding or Stiffness">
+    **Symptoms**: Servo struggles to move, unusual noises, jerky movement
+    
+    **Diagnostic Steps**:
+    1. **Manually test joint movement** with power off
+    2. **Check for interference** between moving parts
+    3. **Inspect servo horn alignment** and mounting
+    4. **Verify proper assembly** against 3D model reference
+    
+    **Solutions**:
+    - Realign servo horns to proper zero position
+    - Check for over-tightened screws causing binding
+    - Verify 3D printed parts are properly post-processed
+    - Lubricate mechanical joints if appropriate
+    - Check for debris or foreign objects in mechanism
+  </Accordion>
+  
+  <Accordion title="Servo Position Inaccuracy">
+    **Symptoms**: Servo doesn't reach commanded position, drift over time
+    
+    **Diagnostic Steps**:
+    1. **Run calibration verification** test
+    2. **Check servo feedback** accuracy
+    3. **Monitor position over time** for drift
+    4. **Test under different loads**
+    
+    **Solutions**:
+    - Recalibrate servo using calibration script
+    - Check for mechanical backlash in servo gears
+    - Verify servo is not overloaded beyond specifications
+    - Update servo firmware if available
+    - Replace servo if internal feedback system is faulty
+  </Accordion>
+</AccordionGroup>
+
+### LED and Visual Issues
+
+<AccordionGroup>
+  <Accordion title="LED Matrix Not Working">
+    **Symptoms**: No LED illumination, partial lighting, wrong colors
+    
+    **Diagnostic Steps**:
+    1. **Check power connections** to LED matrix (5V, GND)
+    2. **Verify data signal connection** (GPIO18 by default)
+    3. **Test with simple LED pattern**
+    4. **Check LED count configuration** in software
+    
+    **Solutions**:
+    - Verify correct wiring: 5V (red), GND (black), Data (signal)
+    - Check solder joints on LED matrix connections
+    - Adjust LED count in configuration file:
+      ```python
+      # In /lelamp/service/rgb/rgb_service.py
+      # Modify led_count parameter
+      led_count = 16  # Adjust to actual LED count
+      ```
+    - Test with known working LED strip
+    
+    <Note>
+    WS2812B LEDs are sensitive to voltage levels. Ensure clean 5V power supply and proper signal levels.
+    </Note>
+  </Accordion>
+  
+  <Accordion title="Inconsistent LED Colors">
+    **Symptoms**: Colors don't match commands, flickering, random patterns
+    
+    **Diagnostic Steps**:
+    1. **Check power supply stability** under LED load
+    2. **Verify signal wire integrity** and shielding
+    3. **Test with reduced LED count** to isolate issues
+    4. **Monitor for electromagnetic interference**
+    
+    **Solutions**:
+    - Add capacitors across LED power supply for stability
+    - Use shielded cable for data signal
+    - Keep LED data wires away from servo power cables
+    - Reduce LED brightness if power supply is marginal
+    - Add level shifter for data signal if needed (3.3V to 5V)
+  </Accordion>
+</AccordionGroup>
+
+## Software and Configuration Issues
+
+### Raspberry Pi and System Issues
+
+<AccordionGroup>
+  <Accordion title="Cannot SSH into Pi">
+    **Symptoms**: Connection refused, host not found, timeout errors
+    
+    **Diagnostic Steps**:
+    1. **Check Pi power and boot status** (LED indicators)
+    2. **Verify network connectivity** (Pi and computer on same network)
+    3. **Test with IP address** instead of hostname
+    4. **Check SSH service status** if you have physical access
+    
+    **Solutions**:
+    - Verify SSH was enabled during OS setup
+    - Check firewall settings on computer and network
+    - Try connecting via Ethernet cable for troubleshooting
+    - Re-flash SD card with SSH explicitly enabled
+    - Use network scanner to find Pi's IP address: `nmap -sn 192.168.1.0/24`
+    
+    <Tabs>
+      <Tab title="Network Troubleshooting">
+        ```bash
+        # Find devices on network
+        nmap -sn 192.168.1.0/24
+        
+        # Test specific IP
+        ping 192.168.1.100
+        
+        # Try SSH with verbose output
+        ssh -v pi@192.168.1.100
+        ```
+      </Tab>
+      
+      <Tab title="Alternative Access Methods">
+        - Connect monitor and keyboard directly to Pi
+        - Use Ethernet connection for initial setup
+        - Access router admin panel to find Pi's IP
+        - Use Pi Imager to re-enable SSH on SD card
+      </Tab>
+    </Tabs>
+  </Accordion>
+  
+  <Accordion title="Runtime Installation Fails">
+    **Symptoms**: Package installation errors, dependency conflicts, build failures
+    
+    **Diagnostic Steps**:
+    1. **Check internet connectivity** on Pi
+    2. **Verify sufficient disk space** on SD card
+    3. **Update system packages** before runtime installation
+    4. **Check for specific error messages** in installation log
+    
+    **Solutions**:
+    - Update system packages: `sudo apt update && sudo apt upgrade`
+    - Free up disk space by removing unnecessary packages
+    - Install missing system dependencies manually
+    - Use larger SD card (32GB+ recommended)
+    - Clear package cache: `sudo apt clean`
+    
+    ```bash
+    # Check disk space
+    df -h
+    
+    # Check available memory
+    free -h
+    
+    # Install common missing dependencies
+    sudo apt install -y build-essential python3-dev portaudio19-dev
+    ```
+  </Accordion>
+  
+  <Accordion title="Permission Errors">
+    **Symptoms**: "Permission denied" errors, cannot access hardware
+    
+    **Diagnostic Steps**:
+    1. **Check user group memberships**
+    2. **Verify file permissions** on device files
+    3. **Test with sudo** to isolate permission issues
+    4. **Check udev rules** for hardware devices
+    
+    **Solutions**:
+    - Add user to required groups:
+      ```bash
+      sudo usermod -a -G gpio,i2c,spi,dialout pi
+      ```
+    - Set proper permissions on device files
+    - Use sudo for hardware-related commands (LED control, servo access)
+    - Restart session after group changes: `logout` then reconnect
+    - Check device file permissions: `ls -l /dev/ttyACM0`
+  </Accordion>
+</AccordionGroup>
+
+### Audio System Issues
+
+<AccordionGroup>
+  <Accordion title="ReSpeaker Hat Not Detected">
+    **Symptoms**: Audio device not found, ALSA errors, no sound input/output
+    
+    **Diagnostic Steps**:
+    1. **Check physical connection** of ReSpeaker Hat
+    2. **Verify device tree overlay** installation
+    3. **List available audio devices**
+    4. **Check system logs** for hardware detection errors
+    
+    **Solutions**:
+    - Reinstall ReSpeaker device tree overlay:
+      ```bash
+      sudo dtoverlay respeaker-2mic-v2_0-overlay.dtbo
+      ```
+    - Verify overlay is loaded at boot in `/boot/firmware/config.txt`
+    - Check GPIO header connection between Pi and ReSpeaker
+    - Reboot Pi after configuration changes
+    - Test with different Pi if hardware failure suspected
+    
+    ```bash
+    # List audio devices
+    aplay -l
+    arecord -l
+    
+    # Check loaded overlays
+    sudo dtoverlay -l
+    
+    # Test audio configuration
+    speaker-test -t wav -c 2
+    ```
+  </Accordion>
+  
+  <Accordion title="Audio Quality Issues">
+    **Symptoms**: Distorted audio, low volume, crackling sounds, no microphone input
+    
+    **Diagnostic Steps**:
+    1. **Check audio levels** in alsamixer
+    2. **Test with different sample rates**
+    3. **Verify speaker connections** and polarity
+    4. **Monitor system resources** during audio processing
+    
+    **Solutions**:
+    - Adjust audio levels in alsamixer:
+      ```bash
+      alsamixer
+      # Select seeed2micvoicec device (F6)
+      # Unmute channels (M key)
+      # Adjust volume levels
+      ```
+    - Check speaker wiring polarity (+ and -)
+    - Reduce audio processing load on system
+    - Use higher quality audio cables
+    - Test with external USB audio device for comparison
+  </Accordion>
+</AccordionGroup>
+
+## Network and Connectivity Issues
+
+### WiFi Connection Problems
+
+<AccordionGroup>
+  <Accordion title="Pi Cannot Connect to WiFi">
+    **Symptoms**: No network connectivity, WiFi adapter not found, connection timeouts
+    
+    **Diagnostic Steps**:
+    1. **Check WiFi adapter status**: `iwconfig`
+    2. **Scan for available networks**: `sudo iwlist wlan0 scan | grep ESSID`
+    3. **Verify network credentials** in configuration
+    4. **Check network compatibility** (2.4GHz vs 5GHz)
+    
+    **Solutions**:
+    - Use 2.4GHz network (better Pi compatibility)
+    - Update WiFi configuration in `/etc/wpa_supplicant/wpa_supplicant.conf`
+    - Restart networking services: `sudo systemctl restart networking`
+    - Check for interference from other devices
+    - Try connecting to mobile hotspot for testing
+  </Accordion>
+  
+  <Accordion title="Changing WiFi Networks">
+    **Symptoms**: Need to connect to different WiFi network, moved locations
+    
+    **Method 1: Ethernet Connection**
+    ```bash
+    # Connect via Ethernet, then:
+    sudo raspi-config
+    # Navigate to: System Options → Wireless LAN
+    # Enter new SSID and password
+    sudo reboot
+    ```
+    
+    **Method 2: Hotspot with Same Credentials**
+    1. Create mobile hotspot with **exact same SSID and password** as old network
+    2. Pi will automatically connect to matching credentials
+    3. SSH in and update configuration for new permanent network
+    
+    **Method 3: SD Card Method**
+    1. Remove SD card and insert into computer
+    2. Edit `wpa_supplicant.conf` in boot partition:
+       ```bash
+       country=US
+       ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+       update_config=1
+       
+       network={
+           ssid="YourNewNetworkName"
+           psk="YourNewPassword"
+       }
+       ```
+    3. Safely eject and reinsert into Pi
+    
+    <Warning>
+    SD card method is less reliable on newer Pi OS versions. Use Ethernet or hotspot methods when possible.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+## Performance and Optimization Issues
+
+### System Performance Problems
+
+<AccordionGroup>
+  <Accordion title="Slow or Laggy Response">
+    **Symptoms**: Delayed servo response, choppy movement, system freezes
+    
+    **Diagnostic Steps**:
+    1. **Monitor system resources**: `htop`
+    2. **Check system temperature**: `vcgencmd measure_temp`
+    3. **Review system logs**: `sudo journalctl -f`
+    4. **Test with reduced functionality** to isolate issues
+    
+    **Solutions**:
+    - Reduce servo update rate if too aggressive
+    - Optimize Python code for better performance
+    - Increase GPU memory split: `sudo raspi-config` → Advanced → Memory Split → 16
+    - Disable unnecessary services: `sudo systemctl disable bluetooth`
+    - Use faster SD card (Class 10 or better)
+    - Add heatsink or fan if temperature > 70°C
+  </Accordion>
+  
+  <Accordion title="Memory or Storage Issues">
+    **Symptoms**: Out of memory errors, disk full warnings, swap usage high
+    
+    **Diagnostic Steps**:
+    ```bash
+    # Check disk usage
+    df -h
+    
+    # Check memory usage
+    free -h
+    
+    # Check largest files
+    sudo du -h / | sort -rh | head -20
+    ```
+    
+    **Solutions**:
+    - Clean package cache: `sudo apt clean`
+    - Remove old log files: `sudo journalctl --vacuum-time=7d`
+    - Use larger SD card (32GB+ recommended)
+    - Move recordings to external storage
+    - Increase swap file size if needed
+    - Monitor and clean temporary files regularly
+  </Accordion>
+</AccordionGroup>
+
+## Diagnostic Tools and Commands
+
+### System Health Monitoring
+
+<AccordionGroup>
+  <Accordion title="Hardware Status Commands">
+    ```bash
+    # System temperature
+    vcgencmd measure_temp
+    
+    # CPU frequency
+    vcgencmd measure_clock arm
+    
+    # Memory split
+    vcgencmd get_mem arm && vcgencmd get_mem gpu
+    
+    # Throttling status
+    vcgencmd get_throttled
+    
+    # Power supply voltage
+    vcgencmd measure_volts
+    ```
+  </Accordion>
+  
+  <Accordion title="Network Diagnostics">
+    ```bash
+    # Network interface status
+    ip addr show
+    
+    # WiFi connection info
+    iwconfig wlan0
+    
+    # Network connectivity test
+    ping -c 4 8.8.8.8
+    
+    # DNS resolution test
+    nslookup google.com
+    
+    # Port connectivity test
+    nc -zv hostname 22
+    ```
+  </Accordion>
+  
+  <Accordion title="LeLamp Specific Tests">
+    ```bash
+    # Complete system test
+    sudo uv run -m lelamp.test.test_all_systems --id your_lamp_name
+    
+    # Individual component tests
+    sudo uv run -m lelamp.test.test_rgb
+    uv run -m lelamp.test.test_audio
+    sudo uv run -m lelamp.test.test_motors --id your_lamp_name --port /dev/ttyACM0
+    
+    # Performance monitoring
+    sudo uv run -m lelamp.monitor.system_performance --duration 60
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help and Support
+
+### Before Asking for Help
+
+<Steps>
+  <Step title="Gather Diagnostic Information">
+    Collect relevant system information:
+    
+    ```bash
+    # System information
+    uname -a
+    cat /etc/os-release
+    
+    # Hardware information
+    lscpu
+    lsusb
+    
+    # LeLamp configuration
+    sudo uv run -m lelamp.system.info --id your_lamp_name
+    
+    # Recent system logs
+    sudo journalctl -n 50 --no-pager
+    ```
+  </Step>
+  
+  <Step title="Document the Problem">
+    Prepare a clear problem description:
+    - **What were you trying to do?**
+    - **What happened instead?**
+    - **What error messages appeared?**
+    - **When did the problem start?**
+    - **What changes were made recently?**
+  </Step>
+  
+  <Step title="Try Basic Troubleshooting">
+    - Restart the system: `sudo reboot`
+    - Check all physical connections
+    - Verify power supplies are working
+    - Test with minimal configuration
+    - Review recent changes or updates
+  </Step>
+</Steps>
+
+### Support Resources
+
+<CardGroup cols={2}>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/humancomputerlab/le_lamp/issues">
+    Report bugs, search existing issues, and request new features
+  </Card>
+  
+  <Card title="Discord Community" icon="discord" href="https://discord.gg/4hmNW3Ep">
+    Real-time help from community members and developers
+  </Card>
+  
+  <Card title="Runtime Repository" icon="code" href="https://github.com/humancomputerlab/lelamp_runtime/issues">
+    Software-specific issues and runtime problems
+  </Card>
+  
+  <Card title="Documentation" icon="book" href="/">
+    Complete build and operation guides with troubleshooting
+  </Card>
+</CardGroup>
+
+### Information to Include in Support Requests
+
+<AccordionGroup>
+  <Accordion title="System Information">
+    - Raspberry Pi model and revision
+    - SD card size and type
+    - Operating system version
+    - LeLamp runtime version
+    - Hardware configuration details
+  </Accordion>
+  
+  <Accordion title="Problem Details">
+    - Clear description of the issue
+    - Steps to reproduce the problem
+    - Complete error messages (text, not screenshots)
+    - When the problem started occurring
+    - Any recent changes or updates
+  </Accordion>
+  
+  <Accordion title="Diagnostic Data">
+    - Output of diagnostic commands
+    - System logs related to the issue
+    - Photos of hardware setup (for hardware issues)
+    - Configuration files (with sensitive data removed)
+    - Test results from troubleshooting steps
+  </Accordion>
+</AccordionGroup>
+
+## Component Testing Order
+
+When diagnosing complex issues, test components in this systematic order:
+
+<Steps>
+  <Step title="Power and Basic Systems">
+    1. **Power supply voltages** and current capacity
+    2. **Raspberry Pi boot** and SSH connectivity
+    3. **Basic system functions** (file system, network)
+  </Step>
+  
+  <Step title="Individual Components">
+    1. **Individual servos** (one at a time, outside daisy chain)
+    2. **LED matrix** (power, data signal, color accuracy)
+    3. **Audio system** (input, output, ReSpeaker Hat)
+    4. **Camera** (if applicable)
+  </Step>
+  
+  <Step title="Integrated Systems">
+    1. **Servo daisy chain** communication
+    2. **Coordinated movement** patterns
+    3. **Audio-visual coordination**
+    4. **Complete system integration**
+  </Step>
+</Steps>
+
+This systematic approach helps isolate problems and prevents cascading failures from masking root causes.
+
+---
+
+**Previous**: [Lamp Control](/lamp-control)
+
+<Tip>
+Keep a troubleshooting log of issues and solutions you encounter. This becomes valuable reference material for future problems and helps the community when shared.
+</Tip>

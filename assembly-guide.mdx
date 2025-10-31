@@ -1,0 +1,543 @@
+---
+title: "LeLamp Assembly Guide"
+description: "Complete mechanical and electrical assembly instructions for building your LeLamp robot"
+---
+
+# LeLamp Assembly Guide
+
+<Info>
+**⏱️ Estimated time:** 1–2 hours  
+**🔧 Required tools:** Soldering iron, screwdrivers, heat insert tool  
+**📦 Required components:** Raspberry Pi, ReSpeaker Hat, speaker, LED Matrix, SD card, servo driver
+</Info>
+
+This guide covers the complete assembly of your LeLamp, from individual component preparation to final integration and testing.
+
+## Assembly Overview
+
+LeLamp consists of three main sections that work together to create an expressive robotic lamp:
+
+<CardGroup cols={3}>
+  <Card title="LeLamp Head" icon="lightbulb">
+    **Audio & Visual Components**
+    - 4Ω/3W Speaker for audio output
+    - WS2812B LED Matrix for expressions
+    - Camera for computer vision
+  </Card>
+  
+  <Card title="LeLamp Base" icon="microchip">
+    **Control Electronics**
+    - Raspberry Pi with ReSpeaker Hat
+    - Motor Driver for servo control
+    - Power management systems
+  </Card>
+  
+  <Card title="LeLamp Body" icon="robot">
+    **Mechanical Systems**
+    - 5 STS3215 servo motors
+    - 3D printed structural components
+    - Precision mechanical assemblies
+  </Card>
+</CardGroup>
+
+<Frame>
+  <img src="/images/lelamp-schematic.jpg" alt="Complete LeLamp assembly schematic showing all components and connections" />
+</Frame>
+
+All connections between the Head and Base are made through a **stripped Ethernet cable**, which carries power and data signals. Connections from the Base to motors use the default wires provided with each motor.
+
+## Pre-Assembly Preparation
+
+<Warning>
+**Safety First**: Review all safety warnings before beginning assembly. Ensure adequate ventilation, proper lighting, and have safety equipment ready.
+</Warning>
+
+### Required Materials Checklist
+
+<AccordionGroup>
+  <Accordion title="Electronic Components">
+    - [ ] Raspberry Pi 4 (4GB+ recommended)
+    - [ ] ReSpeaker 2-Mics Pi HAT
+    - [ ] Servo driver board
+    - [ ] 4Ω/3W speaker
+    - [ ] WS2812B LED matrix
+    - [ ] Camera module (Pi Camera or USB webcam)
+    - [ ] MicroSD card (32GB+ recommended)
+  </Accordion>
+  
+  <Accordion title="Mechanical Components">
+    - [ ] 5× STS3215 servos (configured with IDs 1-5)
+    - [ ] All 3D printed parts (supports removed, surfaces cleaned)
+    - [ ] Heat inserts (M2 and M3 sizes)
+    - [ ] Screws and fasteners per BOM
+    - [ ] Servo horns and mounting hardware
+  </Accordion>
+  
+  <Accordion title="Cables and Connectors">
+    - [ ] Ethernet cable (for stripping into individual wires)
+    - [ ] USB Type-C cable (Pi to servo driver)
+    - [ ] Female header connectors
+    - [ ] JST 2.0 male connectors
+    - [ ] Heat shrink tubing
+    - [ ] Wire (22-26 AWG, various colors)
+  </Accordion>
+</AccordionGroup>
+
+## Section 1: LeLamp Head Assembly
+
+The head assembly contains the audio and visual components that give LeLamp its expressive capabilities.
+
+<Steps>
+  <Step title="Prepare the Ethernet Cable">
+    Strip the outer insulation from approximately 50cm of Ethernet cable to expose the 8 individual wires inside.
+    
+    <CodeGroup>
+      ```text Wire Color Assignments
+      Orange/White: LED Data Signal
+      Orange: LED Ground
+      Green/White: LED 5V Power
+      Blue: Speaker Positive
+      Blue/White: Speaker Negative
+      Green: Reserved/Unused
+      Brown: Reserved/Unused
+      Brown/White: Reserved/Unused
+      ```
+    </CodeGroup>
+    
+    <Tip>
+    You may use individual wires instead of Ethernet cable, but ensure each wire is at least **50cm long** to reach from head to base.
+    </Tip>
+  </Step>
+  
+  <Step title="Solder LED Matrix Connections">
+    Connect the LED matrix following WS2812B wiring standards:
+    
+    <Tabs>
+      <Tab title="Connection Diagram">
+        | LED Matrix Pad | Wire Color | Function |
+        |----------------|------------|----------|
+        | VCC/5V | Green/White | Power supply |
+        | GND | Orange | Ground reference |
+        | DIN/Data | Orange/White | Data signal |
+      </Tab>
+      
+      <Tab title="Soldering Tips">
+        - Use flux for clean, reliable joints
+        - Keep iron temperature at 350°C
+        - Tin both wire and pad before joining
+        - Use heat shrink to insulate connections
+        - Test continuity with multimeter
+      </Tab>
+    </Tabs>
+    
+    <Warning>
+    LED matrices are sensitive to static discharge. Use anti-static precautions and avoid touching the LED chips directly.
+    </Warning>
+    
+    <Frame>
+      <img src="/images/led-matrix-soldering.png" alt="LED matrix with Ethernet wires soldered to connection pads" />
+    </Frame>
+  </Step>
+  
+  <Step title="Connect Speaker Wiring">
+    Solder the speaker connections:
+    
+    1. **Identify speaker polarity** (usually marked + and -)
+    2. **Solder Blue wire** to positive terminal
+    3. **Solder Blue/White wire** to negative terminal
+    4. **Add JST 2.0 male connector** to the other end of speaker wires
+    
+    <Note>
+    The JST connector will plug directly into the ReSpeaker Hat's speaker port, making assembly and disassembly easier.
+    </Note>
+  </Step>
+  
+  <Step title="Install Components in Head Structure">
+    Mount the components in the 3D printed head assembly:
+    
+    1. **Position LED matrix** according to orientation markings
+    2. **Mount speaker** with cone facing outward
+    3. **Route cables** through designated cable management channels
+    4. **Secure components** with appropriate screws
+    5. **Test fit** head assembly before final tightening
+    
+    <Frame>
+      <img src="/images/head-assembly-internal.png" alt="Internal view of head assembly showing component placement and wire routing" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Section 2: LeLamp Base Assembly
+
+The base contains all control electronics and power management systems.
+
+<Steps>
+  <Step title="Prepare ReSpeaker Hat">
+    Solder header pins to the ReSpeaker Hat:
+    
+    1. **Insert 40-pin header** into GPIO holes
+    2. **Ensure proper alignment** with Pi GPIO layout
+    3. **Solder all connections** with clean, consistent joints
+    4. **Test fit** on Raspberry Pi before proceeding
+    
+    <Frame>
+      <img src="/images/respeaker-hat-soldering.jpg" alt="ReSpeaker Hat with GPIO headers being soldered" />
+    </Frame>
+    
+    <Check>
+    All GPIO pins should be straight, properly aligned, and securely soldered.
+    </Check>
+  </Step>
+  
+  <Step title="Mount Electronics in Base">
+    Install the control electronics in the base structure:
+    
+    <Tabs>
+      <Tab title="Component Placement">
+        - **Raspberry Pi**: Mount in designated area with access to ports
+        - **Motor Driver**: Position for easy USB connection to Pi
+        - **Power connections**: Ensure adequate clearance for cables
+        - **Ventilation**: Don't block any ventilation holes
+      </Tab>
+      
+      <Tab title="Mounting Hardware">
+        - Use M2.5 screws for Raspberry Pi mounting
+        - Secure motor driver with appropriate fasteners
+        - Ensure no components can shift during operation
+        - Verify all connections are accessible
+      </Tab>
+    </Tabs>
+    
+    <Frame>
+      <img src="/images/base-electronics-layout.png" alt="Base assembly showing Raspberry Pi and motor driver positioning" />
+    </Frame>
+  </Step>
+  
+  <Step title="Connect USB Communication">
+    Connect the motor driver to Raspberry Pi:
+    
+    ```bash
+    Pi USB Port → USB Type-C Cable → Motor Driver
+    ```
+    
+    <Warning>
+    Use a high-quality USB cable to ensure reliable communication. Poor cables can cause intermittent servo control issues.
+    </Warning>
+  </Step>
+  
+  <Step title="Install ReSpeaker Hat">
+    Mount the ReSpeaker Hat on the Raspberry Pi:
+    
+    1. **Align GPIO headers** carefully
+    2. **Press down evenly** to ensure full connection
+    3. **Secure with standoffs** if provided
+    4. **Verify no bent pins** or poor connections
+    
+    <Frame>
+      <img src="/images/respeaker-hat-installation.png" alt="ReSpeaker Hat properly installed on Raspberry Pi showing correct orientation" />
+    </Frame>
+  </Step>
+  
+  <Step title="Connect Head Wiring to Base">
+    Connect the Ethernet cable from the head to the ReSpeaker Hat:
+    
+    1. **Prepare female header connectors** on Ethernet wires
+    2. **Match wire colors** to ReSpeaker Hat pin assignments
+    3. **Connect JST speaker connector** to speaker port
+    4. **Verify all connections** against schematic
+    
+    | Wire Function | ReSpeaker Pin | Connection |
+    |---------------|---------------|------------|
+    | LED 5V | 5V | Female header to 5V pin |
+    | LED Ground | GND | Female header to GND pin |
+    | LED Data | GPIO18 | Female header to GPIO18 |
+    | Speaker | Speaker Port | JST connector |
+    
+    <Warning>
+    Double-check all connections before powering on. Incorrect wiring can damage components permanently.
+    </Warning>
+  </Step>
+</Steps>
+
+## Section 3: LeLamp Body Assembly
+
+The body assembly provides the mechanical structure and servo mounting for LeLamp's expressive movement.
+
+<Info>
+Reference the [OnShape 3D Assembly](https://cad.onshape.com/documents/16c9706360b5ad34f9c8db49/w/2edfa54c83253c120fbc9e58/e/a35eec618cd78ea5d74bf01b) for detailed component positioning and orientation.
+</Info>
+
+### Servo Preparation
+
+<Steps>
+  <Step title="Attach Servo Horns">
+    Each STS3215 servo comes with two horns - prepare them correctly:
+    
+    <Tabs>
+      <Tab title="Geared Horn (Output Side)">
+        - **Location**: Side with copper gear visible
+        - **Attachment**: Secure firmly with provided screws
+        - **Torque**: Tighten to manufacturer specification
+        - **Function**: Transmits power to mechanical linkages
+      </Tab>
+      
+      <Tab title="Alignment Horn (Input Side)">
+        - **Location**: Opposite side from copper gear
+        - **Attachment**: Place without screwing (alignment only)
+        - **Function**: Provides axis alignment and support
+        - **Note**: Not needed for yaw and roll servos
+      </Tab>
+    </Tabs>
+    
+    <Frame>
+      <img src="/images/servo-horn-installation.jpg" alt="STS3215 servo showing proper horn installation on both sides" />
+    </Frame>
+  </Step>
+  
+  <Step title="Verify Servo Orientation">
+    Correct servo orientation is critical for proper operation:
+    
+    <Warning>
+    **Motor body asymmetry**: The STS3215 servo body is not symmetrical. Incorrect orientation will cause binding and potential damage.
+    </Warning>
+    
+    **Orientation Guidelines**:
+    - View LeLamp from top-down with wire slit facing right
+    - Pitch servo horns (geared) should face **outward** (away from you)
+    - Yaw and roll servos don't require alignment horns
+    
+    <Frame>
+      <img src="/images/servo-orientation-guide.jpg" alt="Top-down view showing correct servo orientation in LeLamp body" />
+    </Frame>
+  </Step>
+</Steps>
+
+### Mechanical Assembly
+
+<Steps>
+  <Step title="Install Heat Inserts">
+    Install threaded heat inserts in all 3D printed parts:
+    
+    <Tabs>
+      <Tab title="M2 Heat Inserts">
+        - **Temperature**: 200-220°C
+        - **Depth**: Flush with surface
+        - **Alignment**: Perpendicular to surface
+        - **Cooling**: Allow to cool completely before use
+      </Tab>
+      
+      <Tab title="M3 Heat Inserts">
+        - **Temperature**: 220-240°C
+        - **Depth**: Slightly below surface
+        - **Pressure**: Steady, even pressure during insertion
+        - **Verification**: Test thread engagement with screw
+      </Tab>
+    </Tabs>
+    
+    <Warning>
+    Heat inserts reach dangerous temperatures. Use proper tools, ventilation, and safety equipment.
+    </Warning>
+  </Step>
+  
+  <Step title="Mount Servos in Structure">
+    Install servos in their designated positions:
+    
+    1. **Base Yaw Servo (ID: 1)**: Bottom of base assembly
+    2. **Base Pitch Servo (ID: 2)**: Primary articulation joint
+    3. **Elbow Pitch Servo (ID: 3)**: Mid-body joint
+    4. **Wrist Roll Servo (ID: 4)**: Head rotation mechanism
+    5. **Wrist Pitch Servo (ID: 5)**: Head tilt mechanism
+    
+    <AccordionGroup>
+      <Accordion title="Servo Mounting Guidelines">
+        - Use appropriate screw length to avoid binding
+        - Ensure servo cables can move freely
+        - Verify full range of motion before final tightening
+        - Check for interference with adjacent components
+      </Accordion>
+      
+      <Accordion title="Cable Management">
+        - Route cables through designated channels
+        - Avoid sharp bends or pinch points
+        - Secure cables to prevent snagging
+        - Leave service loops for maintenance access
+      </Accordion>
+    </AccordionGroup>
+    
+    <Frame>
+      <img src="/images/servo-mounting-sequence.jpg" alt="Step-by-step servo installation in LeLamp body structure" />
+    </Frame>
+  </Step>
+  
+  <Step title="Connect Servo Daisy Chain">
+    Wire the servos in sequence for communication:
+    
+    ```
+    Motor Driver → Base Yaw → Base Pitch → Elbow Pitch → Wrist Roll → Wrist Pitch
+    ```
+    
+    <Tabs>
+      <Tab title="Connection Order">
+        1. **Start at motor driver** output connector
+        2. **Connect to Base Yaw** servo input
+        3. **Chain through each servo** in sequence
+        4. **End at Wrist Pitch** servo (no output connection needed)
+      </Tab>
+      
+      <Tab title="Wire Management">
+        - Use provided servo extension cables if needed
+        - Secure connections with heat shrink tubing
+        - Test each connection before proceeding
+        - Document wire routing for future service
+      </Tab>
+    </Tabs>
+    
+    <Note>
+    If servo wires are too short, extend them by [splicing additional wire](https://www.youtube.com/watch?v=r7GlDBge_WU) using proper techniques.
+    </Note>
+  </Step>
+</Steps>
+
+## Power System Setup
+
+LeLamp requires two separate power supplies for optimal operation:
+
+<Steps>
+  <Step title="Servo Power Supply">
+    **5V 2A DC Power Supply with DC Plug**
+    
+    - **Function**: Powers all servo motors
+    - **Connection**: DC plug to motor driver power input
+    - **Verification**: Check voltage with multimeter before connection
+    
+    <Check>
+    Servo power supply provides stable 5V under load conditions.
+    </Check>
+  </Step>
+  
+  <Step title="Raspberry Pi Power Supply">
+    **5V 2A USB Type-C Charger**
+    
+    - **Function**: Powers Raspberry Pi and ReSpeaker Hat
+    - **Connection**: USB-C to Pi power port
+    - **Quality**: Use official Pi power supply or high-quality equivalent
+    
+    <Warning>
+    While it's possible to power the Pi from the motor driver, this is **not recommended** due to risk of voltage fluctuations damaging the Pi.
+    </Warning>
+  </Step>
+</Steps>
+
+## Assembly Verification and Testing
+
+<Steps>
+  <Step title="Visual Inspection">
+    Perform thorough visual inspection:
+    
+    - [ ] All screws properly tightened
+    - [ ] No loose wires or connections
+    - [ ] Servo cables properly routed
+    - [ ] No interference between moving parts
+    - [ ] Heat inserts properly seated
+    - [ ] All components securely mounted
+  </Step>
+  
+  <Step title="Mechanical Function Test">
+    Test mechanical operation before powering electronics:
+    
+    - [ ] All joints move freely by hand
+    - [ ] No binding or excessive resistance
+    - [ ] Full range of motion available
+    - [ ] No unusual noises during movement
+    - [ ] Servo horns properly aligned
+  </Step>
+  
+  <Step title="Electrical Continuity">
+    Verify electrical connections:
+    
+    - [ ] Power supply voltages correct
+    - [ ] All ground connections secure
+    - [ ] Signal wires properly connected
+    - [ ] No short circuits detected
+    - [ ] USB communication cable functional
+  </Step>
+</Steps>
+
+## Final Assembly Integration
+
+<Steps>
+  <Step title="Connect All Subsystems">
+    Integrate head, base, and body assemblies:
+    
+    1. **Route head cable** through body structure
+    2. **Connect to base electronics** per wiring diagram
+    3. **Secure all cable connections**
+    4. **Verify mechanical clearances**
+    5. **Test basic functionality**
+  </Step>
+  
+  <Step title="Initial Power-On Test">
+    Perform first power-up with safety precautions:
+    
+    <Warning>
+    Be prepared to disconnect power immediately if any problems occur during initial testing.
+    </Warning>
+    
+    1. **Connect servo power supply** (servos should initialize)
+    2. **Connect Pi power supply** (Pi should boot normally)
+    3. **Observe LED indicators** on all boards
+    4. **Listen for unusual sounds** or heating
+    5. **Verify basic communication** via SSH
+  </Step>
+</Steps>
+
+## Assembly Completion Checklist
+
+<AccordionGroup>
+  <Accordion title="Mechanical Assembly">
+    - [ ] All 3D printed parts properly assembled
+    - [ ] Heat inserts correctly installed and threaded
+    - [ ] Servos mounted in correct positions and orientations
+    - [ ] Full range of motion verified for all joints
+    - [ ] No mechanical interference or binding
+    - [ ] Cable routing clean and secure
+  </Accordion>
+  
+  <Accordion title="Electrical Assembly">
+    - [ ] All electronic components properly mounted
+    - [ ] ReSpeaker Hat correctly installed on Pi
+    - [ ] Head components wired and connected to base
+    - [ ] Servo daisy chain properly configured
+    - [ ] Power supplies connected and tested
+    - [ ] No short circuits or wiring errors
+  </Accordion>
+  
+  <Accordion title="System Integration">
+    - [ ] Head, base, and body properly integrated
+    - [ ] All cable connections secure and accessible
+    - [ ] Power-on test completed successfully
+    - [ ] Basic communication verified
+    - [ ] Ready for software configuration and testing
+  </Accordion>
+</AccordionGroup>
+
+## What You Should Have
+
+At this stage, you should have a **complete, mechanically assembled LeLamp** with:
+
+- **Functional mechanical structure** with smooth servo operation
+- **Integrated electronics** with proper power and communication
+- **Connected head assembly** with audio and visual components
+- **Proper cable management** throughout the system
+
+<Check>
+**Assembly Complete!** Your LeLamp hardware is now ready for software configuration and calibration.
+</Check>
+
+---
+
+**Previous**: [Servo Setup](/servo-setup) | **Next**: [Raspberry Pi Setup](/raspberry-pi-setup)
+
+<Tip>
+Take photos of your completed assembly for troubleshooting reference and to share with the community on [Discord](https://discord.gg/4hmNW3Ep)!
+</Tip>

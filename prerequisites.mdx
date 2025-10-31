@@ -1,0 +1,394 @@
+---
+title: "Prerequisites for Building LeLamp"
+description: "Essential requirements, tools, components, and skills needed to successfully build your LeLamp robot"
+---
+
+# Prerequisites for Building LeLamp
+
+Before starting your LeLamp build, ensure you have the necessary skills, tools, and time to complete this project successfully.
+
+## Skill Level Requirements
+
+<Warning>
+**Intermediate to Advanced** - This project requires multiple technical skills and should not be attempted as a first electronics or 3D printing project.
+</Warning>
+
+### Required Experience
+
+<Tabs>
+  <Tab title="Electronics">
+    - **Soldering**: Temperature-controlled iron, component mounting, wire management
+    - **Circuit Understanding**: Basic DC circuits, polarity, voltage/current concepts
+    - **Component Identification**: Resistors, capacitors, connectors, ICs
+    - **Troubleshooting**: Multimeter usage, continuity testing, voltage measurement
+  </Tab>
+  
+  <Tab title="3D Printing">
+    - **Printer Operation**: Bed leveling, material loading, print monitoring
+    - **Material Selection**: PLA+ properties, print settings optimization
+    - **Post-Processing**: Support removal, heat insert installation, surface finishing
+    - **Quality Control**: Dimensional accuracy, fit testing, reprinting when needed
+  </Tab>
+  
+  <Tab title="Software">
+    - **Command Line**: Terminal navigation, file operations, package management
+    - **SSH**: Remote connection, key management, troubleshooting
+    - **Linux Administration**: User management, permissions, service configuration
+    - **Git**: Repository cloning, basic version control operations
+  </Tab>
+  
+  <Tab title="Mechanical">
+    - **Precision Assembly**: Small component handling, alignment, torque control
+    - **Heat Inserts**: Temperature control, insertion depth, thread engagement
+    - **Servo Mounting**: Horn alignment, backlash minimization, cable routing
+    - **Mechanical Troubleshooting**: Binding detection, alignment correction
+  </Tab>
+</Tabs>
+
+<Info>
+**Estimated build time**: 8-12 hours over 2-3 days (not including 3D printing time)
+</Info>
+
+## Required Tools
+
+### Electronics Tools
+
+<Steps>
+  <Step title="Soldering Equipment">
+    - **Soldering iron**: Temperature controlled, 15-25W (adjustable preferred)
+    - **Solder**: 60/40 rosin core, 0.6-0.8mm diameter
+    - **Flux**: Rosin-based flux for clean joints
+    - **Desoldering braid**: For error correction
+    - **Soldering mat**: Heat-resistant work surface
+    
+    <Tip>
+    A temperature-controlled soldering station (300-350°C) provides better results than a basic iron.
+    </Tip>
+  </Step>
+  
+  <Step title="Hand Tools">
+    - **Wire strippers**: Adjustable for 22-26 AWG wire
+    - **Small screwdrivers**: Phillips #0, #1, flathead 2-3mm
+    - **Needle-nose pliers**: For wire bending and component placement
+    - **Wire cutters/flush cutters**: Clean wire cutting
+    - **Tweezers**: Fine-tip for small component handling
+  </Step>
+  
+  <Step title="Measurement Tools">
+    - **Multimeter**: Continuity, voltage, and resistance testing
+    - **Digital calipers**: Verification of 3D printed dimensions
+    - **Anti-static wrist strap**: Component protection (recommended)
+  </Step>
+</Steps>
+
+### Mechanical Tools
+
+- **Heat insert soldering iron tip** OR dedicated heat insert tool
+- **M2 and M3 Allen keys/hex drivers**
+- **Torque screwdriver** (optional but recommended for consistent assembly)
+- **Hobby knife**: For support removal and part cleanup
+
+### 3D Printing Requirements
+
+<AccordionGroup>
+  <Accordion title="Printer Specifications">
+    - **Build Volume**: Minimum 200×200×150mm
+    - **Layer Resolution**: 0.1-0.3mm capability
+    - **Heated Bed**: Required for PLA+ adhesion
+    - **Enclosed Chamber**: Not required but helpful for consistency
+  </Accordion>
+  
+  <Accordion title="Material Requirements">
+    - **Primary Material**: PLA+ (recommended) or PETG
+    - **Color**: Any color, though lighter colors may show LED effects better
+    - **Amount**: Approximately 500g total filament needed
+    - **Quality**: Premium filament recommended for dimensional accuracy
+  </Accordion>
+  
+  <Accordion title="Print Settings">
+    - **Layer Height**: 0.2mm standard, 0.15mm for critical parts
+    - **Infill**: 20% minimum, 30% for structural components
+    - **Supports**: Required for some parts (see individual STL notes)
+    - **Print Speed**: 40-60mm/s for best quality
+    - **Nozzle Temperature**: 210-220°C for PLA+
+    - **Bed Temperature**: 60-70°C
+  </Accordion>
+</AccordionGroup>
+
+## Safety Requirements
+
+<Warning>
+**Read all safety warnings before beginning assembly**
+</Warning>
+
+### Electrical Safety
+
+- **Power Disconnection**: Always disconnect power when making connections
+- **ESD Protection**: Use anti-static precautions when handling Pi and servo driver
+- **Voltage Verification**: Main power supply is 5V - verify before connection
+- **Polarity Checking**: Double-check polarity before powering on any component
+- **Wire Management**: Secure all connections to prevent shorts
+
+### Mechanical Safety
+
+- **Heat Protection**: Heat inserts reach 200°C+ - use appropriate tools and protection
+- **Eye Protection**: Servo horns under tension can snap - wear safety glasses
+- **Ventilation**: Ensure adequate ventilation when soldering or using heat inserts
+- **Small Parts**: Keep small components away from children and pets
+
+## Bill of Materials
+
+<Card title="Complete Component List" icon="list" href="https://docs.google.com/spreadsheets/d/1C50qqSxJjCHEnh6j_Dcfx8JzyLlGobKSOYA0ePJUDVk/edit?gid=1580017414#gid=1580017414">
+  Access the detailed Bill of Materials with current pricing and supplier links
+</Card>
+
+<Note>
+The links in the BOM are reference only. You should find the best deals in your region when possible. Component specifications are more important than specific suppliers.
+</Note>
+
+**Total estimated cost (United States): $310.64 USD**
+
+### Key Components Overview
+
+| Category | Components | Estimated Cost |
+|----------|------------|----------------|
+| **Electronics** | Raspberry Pi, ReSpeaker Hat, Servo Driver | $120 |
+| **Motors** | 5× STS3215 Servos | $100 |
+| **Audio/Visual** | Speaker, LED Matrix, Camera | $40 |
+| **Hardware** | Screws, Heat Inserts, Connectors | $25 |
+| **Cables/Wire** | Ethernet Cable, USB Cables, Wire | $15 |
+| **Power** | 5V Power Supplies (2×) | $10 |
+
+## Setting Up Your Raspberry Pi
+
+<Info>
+This expanded section covers the complete Raspberry Pi setup process mentioned in your requirements.
+</Info>
+
+### Raspberry Pi Preparation
+
+<Steps>
+  <Step title="Flash the SD Card">
+    Download and install [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
+    
+    **Recommended OS**: Raspberry Pi OS Lite (64-bit) - Debian Bookworm version
+    
+    <Warning>
+    Use the **Lite** version to reduce resource usage and improve performance for LeLamp operations.
+    </Warning>
+  </Step>
+  
+  <Step title="Configure Initial Settings">
+    In Raspberry Pi Imager, click the gear icon to configure:
+    
+    - **WiFi SSID and Password**: Set up your network connection
+    - **Username and Password**: Create your user account
+    - **Hostname**: Set a memorable name (e.g., "lelamp-pi")
+    - **Enable SSH**: Required for remote access
+    - **SSH Key**: Optional but recommended for security
+    
+    <Tip>
+    Write down your username, password, and hostname - you'll need these for SSH access.
+    </Tip>
+  </Step>
+  
+  <Step title="Initial Boot and Connection">
+    After flashing and first boot:
+    
+    1. **Connect to your phone's hotspot** (if using mobile setup)
+    2. **Wait 2-3 minutes** for the Pi to fully boot and connect to WiFi
+    3. **Find the Pi's IP address** using your router's admin panel or network scanner
+  </Step>
+</Steps>
+
+### SSH Connection Setup
+
+<CodeGroup>
+  ```bash macOS/Linux
+  # Connect using hostname (preferred)
+  ssh your_username@your_hostname.local
+  
+  # Or connect using IP address
+  ssh your_username@192.168.1.xxx
+  ```
+  
+  ```powershell Windows
+  # Using PowerShell or Command Prompt
+  ssh your_username@your_hostname.local
+  
+  # Or using PuTTY with the hostname/IP
+  ```
+</CodeGroup>
+
+### Bracket Bot Network Setup
+
+<AccordionGroup>
+  <Accordion title="Prerequisites for Network Setup">
+    - You have flashed the SD card using Raspberry Pi Imager
+    - The Raspberry Pi is configured to connect to your phone's hotspot
+    - Your laptop is ready to connect via SSH
+  </Accordion>
+  
+  <Accordion title="Step-by-Step Network Configuration">
+    <Steps>
+      <Step title="Connect Your Laptop to Phone Hotspot">
+        Ensure your laptop is connected to the same phone hotspot that your Raspberry Pi will connect to.
+        
+        <Check>
+        Verify both devices are on the same network by checking IP ranges (usually 192.168.x.x).
+        </Check>
+      </Step>
+      
+      <Step title="Power On the Raspberry Pi">
+        Once powered on, the Raspberry Pi should automatically connect to the phone hotspot.
+        
+        <Note>
+        This process may take 2-3 minutes. The Pi needs time to boot, connect to WiFi, and initialize services.
+        </Note>
+      </Step>
+      
+      <Step title="Follow Video Tutorial for OS Setup">
+        Complete the initial OS configuration following the provided video tutorial until the setup script finishes.
+        
+        <Warning>
+        Do not disconnect or power off the Pi during this process, even if it appears inactive.
+        </Warning>
+      </Step>
+      
+      <Step title="Switch to Bracket Bot Network">
+        After the setup script completes:
+        
+        1. **Disconnect** your laptop from the phone's hotspot
+        2. **Look for** the newly created "Bracket Bot" Wi-Fi network
+        3. **Connect** to the Bracket Bot network using the provided credentials
+        
+        <Tip>
+        The Bracket Bot network typically appears within 1-2 minutes after setup completion.
+        </Tip>
+      </Step>
+      
+      <Step title="Reconnect via SSH">
+        Once connected to the Bracket Bot network, reconnect to your Raspberry Pi:
+        
+        ```bash
+        ssh your_username@your_hostname.local
+        ```
+        
+        <Check>
+        Successful connection confirms your Pi is properly configured and accessible.
+        </Check>
+      </Step>
+    </Steps>
+  </Accordion>
+  
+  <Accordion title="Troubleshooting Network Issues">
+    **Pi doesn't connect to hotspot:**
+    - Verify hotspot credentials in Pi Imager settings
+    - Check hotspot device limit (some phones limit connected devices)
+    - Try restarting both Pi and hotspot device
+    
+    **Bracket Bot network doesn't appear:**
+    - Wait up to 5 minutes for network creation
+    - Check Pi status LEDs for activity
+    - Restart Pi if no activity after 5 minutes
+    
+    **SSH connection fails:**
+    - Verify you're connected to the correct network
+    - Try IP address instead of hostname
+    - Check SSH service status on Pi
+  </Accordion>
+</AccordionGroup>
+
+## Required External Resources
+
+Before starting, ensure you have access to:
+
+- **3D Printer** or reliable 3D printing service
+- **Computer** for Pi setup and servo configuration (Windows, macOS, or Linux)
+- **Stable WiFi network** for Pi connectivity and software downloads
+- **LeLamp Runtime Repository**: https://github.com/humancomputerlab/lelamp_runtime
+
+## Time Planning
+
+### Phase 1: Preparation (2-3 hours)
+
+- [ ] Download and review all documentation
+- [ ] Source all components and verify functionality
+- [ ] 3D print all parts (8-12 hours print time, can run overnight)
+- [ ] Set up software environment on computer
+- [ ] Prepare Raspberry Pi OS and initial configuration
+
+### Phase 2: Electronics Preparation (2-3 hours)
+
+- [ ] Test all electronic components individually
+- [ ] Solder headers and connectors
+- [ ] Complete Raspberry Pi setup and SSH configuration
+- [ ] Configure servo IDs using setup script
+- [ ] Test basic servo communication
+
+### Phase 3: Assembly (4-6 hours)
+
+- [ ] Install heat inserts in 3D printed parts
+- [ ] Mount servos in designated positions
+- [ ] Route wiring through body structure
+- [ ] Assemble head components (speaker, LEDs, camera)
+- [ ] Final integration and comprehensive testing
+
+## Pre-Build Checklist
+
+<AccordionGroup>
+  <Accordion title="Components and Materials">
+    - [ ] All electronic components sourced and tested
+    - [ ] 3D parts printed, supports removed, and post-processed
+    - [ ] Heat inserts, screws, and hardware organized
+    - [ ] Sufficient wire and connectors available
+    - [ ] Power supplies tested and verified
+  </Accordion>
+  
+  <Accordion title="Tools and Workspace">
+    - [ ] All required tools available and functional
+    - [ ] Adequate workspace with good lighting
+    - [ ] Safety equipment ready (glasses, ventilation)
+    - [ ] Anti-static precautions in place
+    - [ ] Reference materials easily accessible
+  </Accordion>
+  
+  <Accordion title="Software and Accounts">
+    - [ ] LeLamp Runtime repository cloned
+    - [ ] Raspberry Pi OS flashed and configured
+    - [ ] SSH access tested and working
+    - [ ] GitHub account set up for issue reporting
+    - [ ] Discord account for community support
+  </Accordion>
+  
+  <Accordion title="Time and Environment">
+    - [ ] Adequate time allocated (don't rush!)
+    - [ ] Uninterrupted workspace for assembly sessions
+    - [ ] Backup plans for component failures
+    - [ ] Documentation and troubleshooting guides reviewed
+  </Accordion>
+</AccordionGroup>
+
+## Getting Help
+
+<CardGroup cols={2}>
+  <Card title="Discord Community" icon="discord" href="https://discord.gg/4hmNW3Ep">
+    Real-time help, build photos, and discussions with other builders
+  </Card>
+  <Card title="GitHub Issues" icon="github" href="https://github.com/humancomputerlab/le_lamp/issues">
+    Report bugs, request features, and search existing solutions
+  </Card>
+</CardGroup>
+
+### Before Asking for Help
+
+1. **Check this documentation** thoroughly, including troubleshooting sections
+2. **Search existing GitHub issues** for similar problems
+3. **Gather diagnostic information** (error messages, photos, system info)
+4. **Try basic troubleshooting** steps (reboot, reconnect, verify connections)
+
+---
+
+<Check>
+**Ready to proceed?** Once you've completed this checklist, continue to [Servo Setup](/servo-setup) to begin your LeLamp build.
+</Check>

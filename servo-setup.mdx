@@ -1,0 +1,378 @@
+---
+title: "Servo Setup and Configuration"
+description: "Step-by-step guide to setting up and configuring your STS3215 servos for LeLamp operation"
+---
+
+# Servo Setup and Configuration
+
+<Info>
+**⏱️ Estimated time:** 30-45 minutes  
+**🔧 Required tools:** Computer, servo driver, USB cable  
+**📦 Required components:** 5× STS3215 servos, servo driver board
+</Info>
+
+The first step in assembling LeLamp is setting up your servos with proper IDs and testing their functionality.
+
+## Overview
+
+Each LeLamp uses 5 STS3215 servos that must be individually configured with unique IDs. This setup process ensures each servo responds correctly to commands and operates within safe parameters.
+
+<Warning>
+Complete servo setup **before** mechanical assembly. Once servos are mounted in the lamp structure, configuration becomes much more difficult.
+</Warning>
+
+## Step 1: Download LeLamp Runtime
+
+<Steps>
+  <Step title="Clone the Repository">
+    On your personal computer, open your terminal and clone the LeLamp Runtime Repository:
+    
+    ```bash
+    git clone https://github.com/humancomputerlab/lelamp_runtime
+    cd lelamp_runtime
+    ```
+    
+    <Check>
+    Verify the download by checking that the `lelamp_runtime` directory contains Python files and configuration folders.
+    </Check>
+  </Step>
+  
+  <Step title="Install UV Package Manager">
+    Install the UV package manager for Python dependency management:
+    
+    <CodeGroup>
+      ```bash macOS/Linux
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+      ```
+      
+      ```powershell Windows
+      powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+      ```
+    </CodeGroup>
+    
+    <Note>
+    You may need to restart your terminal or source your shell configuration after installation.
+    </Note>
+  </Step>
+  
+  <Step title="Setup Runtime Environment">
+    Install all required dependencies:
+    
+    ```bash
+    uv sync
+    ```
+    
+    This process downloads and installs all necessary Python packages for servo control and testing.
+    
+    <Tip>
+    This installation will be repeated later on your Raspberry Pi, but having it on your computer allows for initial servo configuration.
+    </Tip>
+  </Step>
+</Steps>
+
+## Step 2: Prepare Your Servos
+
+<Steps>
+  <Step title="Unbox and Inspect Servos">
+    Remove all 5 servos from packaging and inspect each one:
+    
+    - Check for physical damage
+    - Verify all servo horns are included
+    - Test manual rotation (should move smoothly with slight resistance)
+    - Ensure cables are intact and connectors are clean
+    
+    <Frame>
+      <img src="/images/servo-unboxing.jpg" alt="Five STS3215 servos laid out on work surface" />
+    </Frame>
+  </Step>
+  
+  <Step title="Label Your Servos">
+    Create labels for each servo according to their intended position in LeLamp:
+    
+    | Servo Name  | Servo ID | Function |
+    |-------------|----------|----------|
+    | base_yaw    | 1        | Base rotation (left/right) |
+    | base_pitch  | 2        | Base tilt (forward/back) |
+    | elbow_pitch | 3        | Elbow joint movement |
+    | wrist_roll  | 4        | Wrist rotation |
+    | wrist_pitch | 5        | Head tilt (up/down) |
+    
+    <Frame>
+      <img src="/images/servo-labeling.jpg" alt="Servos with identification labels attached" />
+    </Frame>
+    
+    <Note>
+    There's no specific servo that must be assigned to each ID. The important thing is having 5 servos with unique, labeled IDs that you can track throughout assembly.
+    </Note>
+  </Step>
+</Steps>
+
+## Step 3: Configure Servo Driver Connection
+
+<Steps>
+  <Step title="Connect Servo Driver">
+    Connect the servo driver board to your computer using a USB cable.
+    
+    <Warning>
+    Ensure the servo driver is powered off when making initial connections to prevent damage.
+    </Warning>
+  </Step>
+  
+  <Step title="Find the Serial Port">
+    Identify which port the servo driver is connected to:
+    
+    ```bash
+    uv run lerobot-find-port
+    ```
+    
+    This command will display available serial ports. The output typically shows something like:
+    
+    <CodeGroup>
+      ```bash macOS
+      /dev/tty.usbmodem5A680114681
+      ```
+      
+      ```bash Linux
+      /dev/ttyACM0
+      ```
+      
+      ```bash Windows
+      COM3
+      ```
+    </CodeGroup>
+    
+    <Tip>
+    If multiple ports are shown, disconnect and reconnect the servo driver, then run the command again to identify which port appears/disappears.
+    </Tip>
+  </Step>
+</Steps>
+
+## Step 4: Run Motor Setup Script
+
+<Steps>
+  <Step title="Execute Setup Command">
+    Run the motor setup script with your specific configuration:
+    
+    ```bash
+    uv run -m lelamp.setup_motors --id your_lamp_name --port your_port
+    ```
+    
+    **Example:**
+    ```bash
+    uv run -m lelamp.setup_motors --id lelamp --port /dev/tty.usbmodem5A680114681
+    ```
+    
+    <Warning>
+    Remember the lamp name you choose - you'll use this identifier throughout the configuration and operation process.
+    </Warning>
+  </Step>
+  
+  <Step title="Follow Interactive Setup">
+    The setup script will guide you through configuring each servo:
+    
+    1. **Connect each servo individually** when prompted
+    2. **Verify servo response** to test commands
+    3. **Set servo ID** according to your labeling system
+    4. **Test range of motion** to ensure proper operation
+    5. **Save configuration** for each servo
+    
+    <Frame>
+      <img src="/images/servo-setup-process.jpg" alt="Servo connected to driver board during setup process" />
+    </Frame>
+  </Step>
+  
+  <Step title="Verify All Servos">
+    After individual setup, connect all servos in a daisy chain to verify they respond correctly:
+    
+    - Each servo should respond only to its assigned ID
+    - Movement should be smooth and controlled
+    - No servo conflicts or communication errors
+    
+    <Check>
+    All 5 servos respond correctly to individual commands without interference.
+    </Check>
+  </Step>
+</Steps>
+
+## Servo Configuration Details
+
+### Understanding Servo IDs
+
+Each servo must have a unique ID (1-5) that corresponds to its position in LeLamp:
+
+<AccordionGroup>
+  <Accordion title="Base Yaw (ID: 1)">
+    **Function**: Rotates the entire lamp left and right
+    **Range**: ±90° from center position
+    **Critical**: This servo bears the weight of the entire upper assembly
+  </Accordion>
+  
+  <Accordion title="Base Pitch (ID: 2)">
+    **Function**: Tilts the lamp forward and backward
+    **Range**: Approximately ±45° from vertical
+    **Critical**: Controls overall lamp posture and attention direction
+  </Accordion>
+  
+  <Accordion title="Elbow Pitch (ID: 3)">
+    **Function**: Bends the lamp's "elbow" joint
+    **Range**: 0-180° (fully extended to fully bent)
+    **Critical**: Primary articulation for expressive gestures
+  </Accordion>
+  
+  <Accordion title="Wrist Roll (ID: 4)">
+    **Function**: Rotates the head assembly around its axis
+    **Range**: ±180° continuous rotation
+    **Critical**: Adds expressiveness to head movements
+  </Accordion>
+  
+  <Accordion title="Wrist Pitch (ID: 5)">
+    **Function**: Tilts the head up and down
+    **Range**: ±45° from horizontal
+    **Critical**: Fine control for attention and expression
+  </Accordion>
+</AccordionGroup>
+
+### Communication Protocol
+
+The servos communicate using a daisy-chain protocol:
+
+```
+Computer → Servo Driver → Servo 1 → Servo 2 → Servo 3 → Servo 4 → Servo 5
+```
+
+<Note>
+Each servo passes commands along the chain, responding only to messages with its specific ID. This allows control of all servos through a single communication cable.
+</Note>
+
+## Testing and Validation
+
+### Individual Servo Tests
+
+After setup, test each servo individually:
+
+<Tabs>
+  <Tab title="Range of Motion">
+    ```bash
+    # Test full range for each servo
+    uv run -m lelamp.test.test_servo_range --id your_lamp_name --servo 1
+    uv run -m lelamp.test.test_servo_range --id your_lamp_name --servo 2
+    # ... repeat for servos 3, 4, 5
+    ```
+  </Tab>
+  
+  <Tab title="Response Speed">
+    ```bash
+    # Test servo response timing
+    uv run -m lelamp.test.test_servo_speed --id your_lamp_name
+    ```
+  </Tab>
+  
+  <Tab title="Position Accuracy">
+    ```bash
+    # Verify position feedback accuracy
+    uv run -m lelamp.test.test_servo_accuracy --id your_lamp_name
+    ```
+  </Tab>
+</Tabs>
+
+### System Integration Test
+
+Test all servos working together:
+
+```bash
+# Run coordinated movement test
+uv run -m lelamp.test.test_all_servos --id your_lamp_name --port your_port
+```
+
+This test verifies:
+- No communication conflicts between servos
+- Smooth coordinated movements
+- Proper power distribution
+- Stable operation under load
+
+## Success Criteria
+
+After completing servo setup, verify the following:
+
+<AccordionGroup>
+  <Accordion title="Configuration Verification">
+    - [ ] All 5 servos labeled with intended positions
+    - [ ] Each servo responds only to its assigned ID (1-5)
+    - [ ] No servo ID conflicts or communication errors
+    - [ ] Motor setup script completed without errors
+    - [ ] Configuration saved and can be reloaded
+  </Accordion>
+  
+  <Accordion title="Performance Verification">
+    - [ ] All servos move smoothly through full range
+    - [ ] No binding, grinding, or unusual noises
+    - [ ] Position feedback matches commanded positions
+    - [ ] Response time is consistent across all servos
+    - [ ] Power consumption within expected ranges
+  </Accordion>
+  
+  <Accordion title="System Integration">
+    - [ ] All servos can operate simultaneously
+    - [ ] Daisy-chain communication works reliably
+    - [ ] No interference between servo operations
+    - [ ] System remains stable during complex movements
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting Common Issues
+
+<AccordionGroup>
+  <Accordion title="Servo Not Detected">
+    **Symptoms**: Setup script cannot find or communicate with servo
+    
+    **Solutions**:
+    - Check USB connection and try different cable
+    - Verify servo driver power supply
+    - Try different USB port on computer
+    - Check servo cable connections
+    - Restart servo driver and reconnect
+  </Accordion>
+  
+  <Accordion title="Permission Errors">
+    **Symptoms**: "Permission denied" or "Access denied" errors
+    
+    **Solutions**:
+    - **Linux**: Add user to dialout group: `sudo usermod -a -G dialout $USER`
+    - **macOS**: May need to run with `sudo` for serial access
+    - **Windows**: Check device manager for driver issues
+    - Restart terminal after permission changes
+  </Accordion>
+  
+  <Accordion title="Servo ID Conflicts">
+    **Symptoms**: Multiple servos respond to same command
+    
+    **Solutions**:
+    - Reset all servos to factory defaults
+    - Configure servos one at a time, disconnecting others
+    - Verify each servo ID before connecting the next
+    - Use servo manufacturer's configuration tool if available
+  </Accordion>
+  
+  <Accordion title="Inconsistent Movement">
+    **Symptoms**: Servo moves erratically or doesn't reach target positions
+    
+    **Solutions**:
+    - Check power supply voltage and current capacity
+    - Verify servo cable integrity
+    - Test servo individually outside of daisy chain
+    - Update servo firmware if available
+    - Replace servo if hardware fault is suspected
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<Check>
+**Servo setup complete!** Your servos are now configured and ready for mechanical assembly.
+</Check>
+
+With your servos properly configured, you can proceed to [Assembly Guide](/assembly-guide) where you'll mount them into the 3D printed LeLamp structure and complete the mechanical assembly.
+
+<Tip>
+Keep your servo configuration notes handy - you'll reference the servo IDs and lamp name during software setup and calibration.
+</Tip>

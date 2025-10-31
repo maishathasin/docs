@@ -1,97 +1,94 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "LeLamp - Build Your Own Expressive Robot Lamp"
+description: "Complete guide to building LeLamp, an open-source expressive robot lamp with 5 degrees of freedom, camera, audio, and programmable LEDs"
 ---
 
-## Setting up
+# Welcome to LeLamp Documentation
 
-Get your documentation site up and running in minutes.
+LeLamp is an open-source expressive robot lamp that brings personality and interactivity to your space. With 5 degrees of freedom, camera vision, audio capabilities, and programmable LEDs, LeLamp can express emotions, respond to voice commands, and create engaging interactions.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/prerequisites">
+    Get started with the essential requirements and planning for your LeLamp build
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Hardware Setup" icon="wrench" href="/servo-setup">
+    Step-by-step assembly instructions for servos, electronics, and mechanical components
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Software Configuration" icon="code" href="/raspberry-pi-setup">
+    Configure your Raspberry Pi and set up the LeLamp runtime environment
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Troubleshooting" icon="bug" href="/troubleshooting">
+    Solutions to common issues and debugging techniques
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## What You'll Build
 
-Everything you need to create world-class documentation.
+LeLamp features three main sections working together to create an expressive robotic companion:
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+### LeLamp Head
+- **Camera** — Computer vision for environmental awareness
+- **Speaker** — 4Ω/3W audio output for voice and sound effects
+- **LED Matrix** — WS2812B programmable LEDs for visual expressions
 
-## Need inspiration?
+### LeLamp Base
+- **Raspberry Pi with ReSpeaker Hat** — Central control unit for servos, audio, and LEDs
+- **Motor Driver** — Precise control of servo motors
+- **Power Management** — Dual power supply system for optimal performance
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+### LeLamp Body
+- **5 Servo Motors** — Provides expressive movement with multiple degrees of freedom
+- **Precision Mechanics** — 3D printed components for smooth, reliable operation
+
+## Key Features
+
+<AccordionGroup>
+  <Accordion title="Expressive Movement">
+    5 degrees of freedom allow LeLamp to nod, turn, tilt, and gesture naturally, creating lifelike expressions and interactions.
+  </Accordion>
+  
+  <Accordion title="Audio Interaction">
+    Built-in microphone and speaker enable voice commands, responses, and ambient audio reactions.
+  </Accordion>
+  
+  <Accordion title="Visual Expression">
+    Programmable LED matrix displays emotions, status indicators, and custom light patterns.
+  </Accordion>
+  
+  <Accordion title="Computer Vision">
+    Integrated camera allows LeLamp to see and respond to its environment and users.
+  </Accordion>
+  
+  <Accordion title="Open Source">
+    Complete hardware designs, software, and documentation available for customization and improvement.
+  </Accordion>
+</AccordionGroup>
+
+## Project Overview
+
+<Info>
+**Skill Level**: Intermediate to Advanced  
+**Build Time**: 8-12 hours over 2-3 days  
+**Estimated Cost**: $310 USD (components may vary by region)
+</Info>
+
+This project requires experience with:
+- Electronics (soldering, basic circuits)
+- 3D printing and mechanical assembly
+- Command line and basic Linux administration
+- Software installation and configuration
+
+## Getting Started
+
+Ready to build your LeLamp? Start with the [Prerequisites](/prerequisites) page to ensure you have everything needed for a successful build.
+
+<Tip>
+Join our [Discord community](https://discord.gg/4hmNW3Ep) for real-time help, build photos, and discussions with other LeLamp builders!
+</Tip>
+
+## Resources
+
+- **Main Repository**: [LeLamp Hardware](https://github.com/humancomputerlab/le_lamp)
+- **Runtime Software**: [LeLamp Runtime](https://github.com/humancomputerlab/lelamp_runtime)
+- **3D Models**: [OnShape Assembly](https://cad.onshape.com/documents/16c9706360b5ad34f9c8db49/w/2edfa54c83253c120fbc9e58/e/a35eec618cd78ea5d74bf01b)
+- **Bill of Materials**: [Component Spreadsheet](https://docs.google.com/spreadsheets/d/1C50qqSxJjCHEnh6j_Dcfx8JzyLlGobKSOYA0ePJUDVk/edit?gid=1580017414#gid=1580017414)

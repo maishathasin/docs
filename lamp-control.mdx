@@ -1,0 +1,523 @@
+---
+title: "LeLamp Control and Operation"
+description: "Complete guide to calibrating, controlling, and operating your LeLamp robot with movement recording and playback"
+---
+
+# LeLamp Control and Operation
+
+<Info>
+**⏱️ Estimated time:** 30 minutes  
+**🔧 Required tools:** Computer with SSH access to LeLamp  
+**📦 Required:** Fully assembled and configured LeLamp with working software
+</Info>
+
+This guide covers the complete operation of your LeLamp, from initial calibration to advanced movement programming and system control.
+
+## Overview
+
+LeLamp control involves several key operations:
+- **Calibration**: Setting up servo ranges and zero positions
+- **Movement Recording**: Capturing expressive gestures and behaviors
+- **Movement Playback**: Replaying recorded movements with precision
+- **Real-time Control**: Direct manipulation and interaction
+- **System Monitoring**: Performance tracking and maintenance
+
+<Warning>
+Complete all hardware assembly and software setup before attempting calibration and control operations.
+</Warning>
+
+For complete control documentation and advanced features, refer to the [**LeLamp Runtime GitHub Repository**](https://github.com/humancomputerlab/lelamp_runtime).
+
+## Initial Setup and Connection
+
+<Steps>
+  <Step title="Connect to Your LeLamp">
+    SSH into your LeLamp and navigate to the runtime directory:
+    
+    ```bash
+    ssh your_username@your_hostname.local
+    cd lelamp_runtime
+    ```
+    
+    <Check>
+    Verify you're in the correct directory by checking for LeLamp Python modules: `ls lelamp/`
+    </Check>
+  </Step>
+  
+  <Step title="Verify System Status">
+    Check that all systems are operational before calibration:
+    
+    ```bash
+    # Test servo communication
+    uv run lerobot-find-port
+    
+    # Quick system health check
+    sudo uv run -m lelamp.test.test_all_systems --id your_lamp_name --port /dev/ttyACM0
+    ```
+    
+    <Note>
+    Replace `your_lamp_name` with the identifier you set during servo setup, and adjust the port as needed.
+    </Note>
+  </Step>
+</Steps>
+
+## Calibration Process
+
+Calibration is essential for accurate movement and prevents damage to servos and mechanical components.
+
+<Steps>
+  <Step title="Understand Calibration Requirements">
+    LeLamp calibration involves two phases:
+    
+    <Tabs>
+      <Tab title="Follower Calibration">
+        **Purpose**: Teaches LeLamp to follow external movements
+        - Records servo positions during manual manipulation
+        - Establishes range limits and safe operating zones
+        - Maps physical positions to servo commands
+      </Tab>
+      
+      <Tab title="Leader Calibration">
+        **Purpose**: Enables LeLamp to initiate and control movements
+        - Defines movement patterns and sequences
+        - Sets up autonomous behavior parameters
+        - Calibrates sensor feedback systems
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Prepare LeLamp for Calibration">
+    Position LeLamp in its zero/home position before starting calibration:
+    
+    <AccordionGroup>
+      <Accordion title="Zero Position Reference">
+        The zero position can be viewed in the [3D model](https://cad.onshape.com/documents/16c9706360b5ad34f9c8db49/w/2edfa54c83253c120fbc9e58/e/9bd935d578a9cbc77b5d66b3).
+        
+        **Key characteristics**:
+        - Base yaw centered (facing forward)
+        - Base pitch vertical (upright posture)
+        - Elbow pitch at mid-range
+        - Wrist roll centered
+        - Wrist pitch horizontal (head level)
+      </Accordion>
+      
+      <Accordion title="Safety Considerations">
+        - Ensure adequate clearance around LeLamp
+        - Remove any obstacles from movement path
+        - Have emergency power disconnect readily available
+        - Work in well-lit area for clear visibility
+      </Accordion>
+    </AccordionGroup>
+    
+    <Frame>
+      <img src="/images/lelamp-zero-position.jpg" alt="LeLamp in zero position showing proper servo alignment" />
+    </Frame>
+  </Step>
+  
+  <Step title="Run Calibration Script">
+    Execute the calibration process:
+    
+    ```bash
+    sudo uv run -m lelamp.calibrate --id your_lamp_name --port /dev/ttyACM0
+    ```
+    
+    **The script will guide you through**:
+    1. **Initial position setup** - Place LeLamp in zero position
+    2. **Range mapping** - Move each joint through full range
+    3. **Limit detection** - Identify safe operating boundaries
+    4. **Verification** - Test calibrated movements
+    
+    <Warning>
+    **Critical Calibration Warning**: Do NOT fully rotate the base yaw or head yaw servos during calibration. These servos should only rotate about ±90° from center to prevent cable damage and mechanical binding.
+    </Warning>
+  </Step>
+  
+  <Step title="Follow Interactive Calibration">
+    The calibration script provides step-by-step instructions:
+    
+    <Tabs>
+      <Tab title="Position Setup">
+        1. **Place LeLamp in zero position** as prompted
+        2. **Verify all joints are centered** and aligned
+        3. **Confirm no mechanical binding** or interference
+        4. **Press Enter** to continue when positioned correctly
+      </Tab>
+      
+      <Tab title="Range Mapping">
+        For each servo (except yaw servos):
+        1. **Manually move joint** through full range of motion
+        2. **Move slowly and smoothly** to avoid jerky motions
+        3. **Stop at mechanical limits** - don't force movement
+        4. **Return to center position** when prompted
+        
+        **For yaw servos (base and head)**:
+        1. **Rotate only ±90°** from center position
+        2. **Do NOT attempt full rotation**
+        3. **Listen for unusual sounds** indicating binding
+        4. **Stop immediately** if resistance is felt
+      </Tab>
+      
+      <Tab title="Verification">
+        1. **Observe automated test movements**
+        2. **Verify smooth operation** through calibrated range
+        3. **Check for any binding or jerky motion**
+        4. **Confirm position accuracy** matches commands
+      </Tab>
+    </Tabs>
+  </Step>
+</Steps>
+
+## Movement Recording and Playback
+
+<Steps>
+  <Step title="Record Custom Movements">
+    Capture expressive movements for later playback:
+    
+    ```bash
+    sudo uv run -m lelamp.record --id your_lamp_name --port /dev/ttyACM0 --name movement_name
+    ```
+    
+    **Example recording session**:
+    ```bash
+    sudo uv run -m lelamp.record --id lelamp --port /dev/ttyACM0 --name greeting_wave
+    ```
+    
+    <AccordionGroup>
+      <Accordion title="Recording Best Practices">
+        **Movement Guidelines**:
+        - Start and end in neutral/stable positions
+        - Move slowly and deliberately for smooth playback
+        - Avoid rapid or jerky movements
+        - Consider the emotional expression you want to convey
+        
+        **Technical Considerations**:
+        - Recording captures position data at regular intervals
+        - Smoother movements result in better playback quality
+        - Complex movements may require multiple shorter recordings
+      </Accordion>
+      
+      <Accordion title="Recording Process">
+        1. **Position LeLamp** in starting pose
+        2. **Start recording** with the command above
+        3. **Manually guide LeLamp** through desired movement
+        4. **Create expressive gestures** as needed
+        5. **End in stable position**
+        6. **Stop recording** with `Ctrl+C`
+        7. **Save recording** when prompted
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+  
+  <Step title="Replay Recorded Movements">
+    Play back previously recorded movements:
+    
+    ```bash
+    sudo uv run -m lelamp.replay --id your_lamp_name --port /dev/ttyACM0 --name movement_name
+    ```
+    
+    **Example playback**:
+    ```bash
+    sudo uv run -m lelamp.replay --id lelamp --port /dev/ttyACM0 --name greeting_wave
+    ```
+    
+    <Tabs>
+      <Tab title="Playback Options">
+        **Basic playback**: Plays movement once at recorded speed
+        
+        **Advanced options** (check runtime documentation):
+        - Speed adjustment (faster/slower playback)
+        - Loop playback (repeat continuously)
+        - Blend between movements
+        - Interrupt and resume capabilities
+      </Tab>
+      
+      <Tab title="Playback Monitoring">
+        During playback, monitor for:
+        - Smooth, accurate movement reproduction
+        - No binding or mechanical stress
+        - Proper timing and coordination
+        - Expected emotional expression
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Manage Movement Library">
+    List and organize your recorded movements:
+    
+    ```bash
+    sudo uv run -m lelamp.list_recordings --id your_lamp_name
+    ```
+    
+    This command displays:
+    - All available recorded movements
+    - Recording duration and file size
+    - Creation date and metadata
+    - Playback compatibility information
+    
+    <Tip>
+    Create a library of movements for different emotions and interactions: greetings, acknowledgments, expressions of curiosity, sleep/wake cycles, etc.
+    </Tip>
+  </Step>
+</Steps>
+
+## Advanced Control Features
+
+### Real-Time Control
+
+<AccordionGroup>
+  <Accordion title="Direct Servo Control">
+    Control individual servos in real-time:
+    
+    ```bash
+    # Control specific servo position
+    sudo uv run -m lelamp.control.servo --id your_lamp_name --servo 1 --position 512
+    
+    # Control multiple servos simultaneously
+    sudo uv run -m lelamp.control.multi_servo --id your_lamp_name --positions "512,400,600,300,450"
+    ```
+    
+    **Position values typically range from 0-1023** (depending on servo model and configuration).
+  </Accordion>
+  
+  <Accordion title="Coordinated Movement">
+    Execute complex coordinated movements:
+    
+    ```bash
+    # Smooth interpolated movement
+    sudo uv run -m lelamp.control.smooth_move --id your_lamp_name --target_positions "512,512,512,512,512" --duration 2.0
+    
+    # Bezier curve movement
+    sudo uv run -m lelamp.control.curve_move --id your_lamp_name --waypoints waypoints.json
+    ```
+  </Accordion>
+  
+  <Accordion title="Sensor Integration">
+    Use sensor data to drive movements:
+    
+    ```bash
+    # Camera-based tracking
+    sudo uv run -m lelamp.control.camera_track --id your_lamp_name
+    
+    # Audio-reactive movement
+    sudo uv run -m lelamp.control.audio_reactive --id your_lamp_name --sensitivity 0.5
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### LED and Audio Control
+
+<Steps>
+  <Step title="LED Matrix Programming">
+    Control LED expressions and effects:
+    
+    ```bash
+    # Static color display
+    sudo uv run -m lelamp.led.solid_color --color "255,100,50"
+    
+    # Animated effects
+    sudo uv run -m lelamp.led.rainbow_cycle --speed 0.1
+    
+    # Emotion-based expressions
+    sudo uv run -m lelamp.led.emotion --type happy --intensity 0.8
+    ```
+  </Step>
+  
+  <Step title="Audio Integration">
+    Coordinate audio with movement:
+    
+    ```bash
+    # Play sound with movement
+    sudo uv run -m lelamp.audio.play_with_movement --sound greeting.wav --movement greeting_wave
+    
+    # Voice synthesis
+    sudo uv run -m lelamp.audio.speak --text "Hello, I am LeLamp" --voice_type friendly
+    ```
+  </Step>
+</Steps>
+
+## System Testing and Validation
+
+<Steps>
+  <Step title="Comprehensive System Test">
+    Perform complete system integration testing:
+    
+    ```bash
+    # Full system functionality test
+    sudo uv run -m lelamp.test.test_motors --id your_lamp_name --port /dev/ttyACM0
+    
+    # LED matrix test
+    sudo uv run -m lelamp.test.test_rgb
+    
+    # Audio system test
+    uv run -m lelamp.test.test_audio
+    ```
+    
+    **Expected results**:
+    - All servos respond correctly to commands
+    - LED matrix displays various colors and patterns
+    - Audio input/output functions properly
+    - No error messages or system warnings
+  </Step>
+  
+  <Step title="Performance Validation">
+    Monitor system performance during operation:
+    
+    ```bash
+    # Check system resources
+    htop
+    
+    # Monitor servo performance
+    sudo uv run -m lelamp.monitor.servo_performance --id your_lamp_name --duration 60
+    
+    # Check system temperature
+    vcgencmd measure_temp
+    ```
+    
+    **Healthy operation indicators**:
+    - CPU usage < 60% during complex movements
+    - System temperature < 70°C
+    - Servo response time < 50ms
+    - No communication timeouts or errors
+  </Step>
+</Steps>
+
+## Operational Best Practices
+
+### Daily Operation
+
+<AccordionGroup>
+  <Accordion title="Startup Sequence">
+    **Recommended startup procedure**:
+    1. Power on servo driver first
+    2. Power on Raspberry Pi
+    3. Wait for system boot (2-3 minutes)
+    4. Verify SSH connectivity
+    5. Run system health check
+    6. Begin normal operations
+  </Accordion>
+  
+  <Accordion title="Shutdown Sequence">
+    **Proper shutdown procedure**:
+    1. Stop all active movements and recordings
+    2. Return LeLamp to neutral position
+    3. Shut down Raspberry Pi: `sudo shutdown -h now`
+    4. Wait for Pi to fully power down (LED stops blinking)
+    5. Disconnect servo driver power
+    6. Disconnect Pi power supply
+  </Accordion>
+  
+  <Accordion title="Maintenance Schedule">
+    **Regular maintenance tasks**:
+    - **Daily**: Visual inspection, basic function test
+    - **Weekly**: Clean dust from components, check connections
+    - **Monthly**: Update software, backup recordings, performance review
+    - **Quarterly**: Deep cleaning, mechanical inspection, calibration verification
+  </Accordion>
+</AccordionGroup>
+
+### Safety Guidelines
+
+<Warning>
+**Always follow these safety guidelines during operation**
+</Warning>
+
+- **Never force mechanical movement** - stop immediately if resistance is felt
+- **Monitor system temperature** during extended operation
+- **Keep emergency power disconnect** easily accessible
+- **Avoid rapid or violent movements** that could damage components
+- **Maintain clear workspace** around LeLamp's movement range
+- **Regular backup** of important recordings and configurations
+
+## Success Criteria and Validation
+
+After completing LeLamp control setup, verify the following capabilities:
+
+<AccordionGroup>
+  <Accordion title="Basic Operation">
+    - [ ] Successful calibration of all 5 servo motors
+    - [ ] Smooth movement through full range of motion
+    - [ ] Accurate position control and feedback
+    - [ ] No mechanical binding or unusual noises
+    - [ ] Stable communication with servo driver
+  </Accordion>
+  
+  <Accordion title="Movement Capabilities">
+    - [ ] Record custom movements successfully
+    - [ ] Play back movements with accuracy
+    - [ ] Create and manage movement library
+    - [ ] Coordinate multiple servos smoothly
+    - [ ] Express emotions through movement
+  </Accordion>
+  
+  <Accordion title="System Integration">
+    - [ ] LED matrix responds to commands
+    - [ ] Audio input/output functions correctly
+    - [ ] Camera integration (if applicable)
+    - [ ] Network connectivity stable
+    - [ ] System performance within acceptable ranges
+  </Accordion>
+  
+  <Accordion title="Advanced Features">
+    - [ ] Real-time servo control
+    - [ ] Sensor-driven movements
+    - [ ] Audio-visual coordination
+    - [ ] Automated behavior sequences
+    - [ ] Remote control capabilities
+  </Accordion>
+</AccordionGroup>
+
+## Congratulations! 🎉
+
+You have successfully built and configured your LeLamp! Your expressive robot lamp is now capable of:
+
+<CardGroup cols={2}>
+  <Card title="Expressive Movement" icon="robot">
+    5 degrees of freedom enable natural, lifelike gestures and emotional expressions
+  </Card>
+  
+  <Card title="Visual Interaction" icon="eye">
+    Camera integration allows environmental awareness and user interaction
+  </Card>
+  
+  <Card title="Audio Communication" icon="microphone">
+    Bidirectional audio enables voice interaction and sound-reactive behaviors
+  </Card>
+  
+  <Card title="Programmable Expressions" icon="palette">
+    LED matrix provides visual feedback and emotional expression capabilities
+  </Card>
+</CardGroup>
+
+## Next Steps and Community
+
+<Steps>
+  <Step title="Explore Advanced Features">
+    - **Runtime Documentation**: Explore advanced features in the [LeLamp Runtime repository](https://github.com/humancomputerlab/lelamp_runtime)
+    - **Custom Programming**: Develop your own behaviors and interactions
+    - **Integration Projects**: Connect LeLamp to smart home systems or AI assistants
+  </Step>
+  
+  <Step title="Join the Community">
+    - **Share Your Build**: Post photos and videos on [Discord](https://discord.gg/4hmNW3Ep)
+    - **Contribute**: Help improve documentation or share custom movements
+    - **Support Others**: Answer questions and help new builders
+  </Step>
+  
+  <Step title="Report and Improve">
+    - **Bug Reports**: Use [GitHub Issues](https://github.com/humancomputerlab/le_lamp/issues) for problems
+    - **Feature Requests**: Suggest improvements and new capabilities
+    - **Documentation**: Help improve these guides based on your experience
+  </Step>
+</Steps>
+
+<Check>
+**LeLamp Control Complete!** Your robot is ready for creative expression and interaction.
+</Check>
+
+---
+
+**Previous**: [Raspberry Pi Setup](/raspberry-pi-setup) | **Troubleshooting**: [Common Issues](/troubleshooting)
+
+<Tip>
+Document your favorite movements and share them with the community. Creative expressions make LeLamp even more engaging and fun!
+</Tip>

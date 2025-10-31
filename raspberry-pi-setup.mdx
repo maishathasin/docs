@@ -1,0 +1,693 @@
+---
+title: "Raspberry Pi Setup and Configuration"
+description: "Complete guide to setting up Raspberry Pi OS, LeLamp runtime, and testing all system components"
+---
+
+# Raspberry Pi Setup and Configuration
+
+<Info>
+**⏱️ Estimated time:** 1–2 hours  
+**🔧 Required tools:** Computer, USB cable, SD Card Reader  
+**📦 Required components:** Raspberry Pi, SD Card, assembled LeLamp hardware
+</Info>
+
+This guide covers the complete software setup process for your LeLamp, from operating system installation to final system testing.
+
+## Overview
+
+The Raspberry Pi serves as the central control unit for LeLamp, managing:
+- Servo motor control and coordination
+- Audio input/output processing
+- LED matrix control and effects
+- Camera input and computer vision
+- Network communication and remote control
+
+<Warning>
+Complete the hardware assembly before beginning software setup. Software configuration requires a fully assembled and connected LeLamp system.
+</Warning>
+
+## Step 1: Operating System Installation
+
+<Steps>
+  <Step title="Download Raspberry Pi Imager">
+    Install the official [Raspberry Pi Imager](https://www.raspberrypi.com/software/) on your computer.
+    
+    <Tabs>
+      <Tab title="Windows">
+        Download and run the Windows installer from the official website.
+      </Tab>
+      
+      <Tab title="macOS">
+        Download the macOS version or install via Homebrew:
+        ```bash
+        brew install --cask raspberry-pi-imager
+        ```
+      </Tab>
+      
+      <Tab title="Linux">
+        Install via package manager or download AppImage:
+        ```bash
+        # Ubuntu/Debian
+        sudo apt install rpi-imager
+        
+        # Arch Linux
+        sudo pacman -S rpi-imager
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Select Operating System">
+    **Recommended OS**: Raspberry Pi OS Lite (64-bit) - Debian Bookworm version
+    
+    <Note>
+    We use the **Lite** version (no desktop environment) to maximize system resources for LeLamp operations and reduce boot time.
+    </Note>
+    
+    In Raspberry Pi Imager:
+    1. Click **"Choose OS"**
+    2. Select **"Raspberry Pi OS (other)"**
+    3. Choose **"Raspberry Pi OS Lite (64-bit)"**
+    
+    <Check>
+    Verify you've selected the 64-bit Lite version for optimal performance.
+    </Check>
+  </Step>
+  
+  <Step title="Configure Advanced Settings">
+    Click the gear icon (⚙️) to configure essential settings:
+    
+    <AccordionGroup>
+      <Accordion title="Network Configuration">
+        **WiFi Settings**:
+        - **SSID**: Your WiFi network name
+        - **Password**: Your WiFi password
+        - **Country**: Select your country for proper WiFi regulations
+        
+        <Tip>
+        Use a stable 2.4GHz network for better range and compatibility with the Pi's WiFi adapter.
+        </Tip>
+      </Accordion>
+      
+      <Accordion title="User Account">
+        **User Configuration**:
+        - **Username**: Create a memorable username (e.g., "pi", "lelamp")
+        - **Password**: Use a strong password for security
+        - **Remember these credentials** - you'll need them for SSH access
+        
+        <Warning>
+        Write down your username and password. You'll need these for all future access to your Pi.
+        </Warning>
+      </Accordion>
+      
+      <Accordion title="System Settings">
+        **Hostname**: Set a unique name (e.g., "lelamp-pi", "my-lelamp")
+        
+        **SSH Configuration**:
+        - ✅ **Enable SSH** (required for remote access)
+        - Choose password authentication or SSH keys
+        
+        **Locale Settings**:
+        - Set timezone for your location
+        - Configure keyboard layout if needed
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+  
+  <Step title="Flash the SD Card">
+    1. **Insert SD card** into your computer
+    2. **Select storage device** in Pi Imager
+    3. **Click "Write"** to begin flashing process
+    4. **Wait for completion** (typically 5-10 minutes)
+    5. **Safely eject** SD card when finished
+    
+    <Note>
+    The flashing process will erase all data on the SD card. Ensure you've backed up any important files.
+    </Note>
+  </Step>
+</Steps>
+
+## Step 2: Initial Pi Boot and Connection
+
+<Steps>
+  <Step title="First Boot">
+    1. **Insert SD card** into Raspberry Pi
+    2. **Connect power supply** (5V 2A USB-C)
+    3. **Wait for boot process** (2-3 minutes for first boot)
+    4. **Observe LED indicators** - steady red power, blinking green activity
+    
+    <Info>
+    The first boot takes longer as the Pi expands the filesystem and completes initial setup.
+    </Info>
+  </Step>
+  
+  <Step title="Establish SSH Connection">
+    Find and connect to your Raspberry Pi:
+    
+    <Tabs>
+      <Tab title="Using Hostname">
+        ```bash
+        ssh your_username@your_hostname.local
+        ```
+        
+        Example:
+        ```bash
+        ssh pi@lelamp-pi.local
+        ```
+      </Tab>
+      
+      <Tab title="Using IP Address">
+        If hostname doesn't work, find the IP address:
+        
+        1. **Check router admin panel** for connected devices
+        2. **Use network scanner**: `nmap -sn 192.168.1.0/24`
+        3. **Connect using IP**: `ssh pi@192.168.1.xxx`
+      </Tab>
+      
+      <Tab title="Troubleshooting Connection">
+        **Common issues**:
+        - **"Host not found"**: Try IP address instead of hostname
+        - **"Connection refused"**: Verify SSH is enabled in Pi settings
+        - **"Permission denied"**: Check username and password
+        - **Network issues**: Verify Pi and computer are on same network
+      </Tab>
+    </Tabs>
+    
+    <Check>
+    Successful SSH connection shows the Raspberry Pi command prompt.
+    </Check>
+  </Step>
+</Steps>
+
+## Step 3: LeLamp Runtime Installation
+
+<Steps>
+  <Step title="Update System Packages">
+    Update the Pi's software packages to the latest versions:
+    
+    ```bash
+    sudo apt update && sudo apt upgrade -y
+    ```
+    
+    <Note>
+    This process may take 10-15 minutes depending on the number of updates available.
+    </Note>
+  </Step>
+  
+  <Step title="Install System Dependencies">
+    Install required system packages for audio processing:
+    
+    ```bash
+    sudo apt install -y portaudio19-dev git curl
+    ```
+    
+    These packages provide:
+    - **portaudio19-dev**: Audio input/output support
+    - **git**: Version control for downloading LeLamp runtime
+    - **curl**: Network tools for downloading additional software
+  </Step>
+  
+  <Step title="Clone LeLamp Runtime Repository">
+    Download the LeLamp runtime software:
+    
+    ```bash
+    git clone https://github.com/humancomputerlab/lelamp_runtime.git
+    cd lelamp_runtime
+    ```
+    
+    <Check>
+    Verify the download by listing directory contents: `ls -la`
+    </Check>
+  </Step>
+  
+  <Step title="Install UV Package Manager">
+    Install UV for Python dependency management:
+    
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+    
+    **Reload your shell** to use UV:
+    ```bash
+    source ~/.bashrc
+    # or restart your SSH session
+    ```
+    
+    <Tip>
+    UV provides faster and more reliable Python package management compared to pip.
+    </Tip>
+  </Step>
+  
+  <Step title="Install LeLamp Runtime">
+    Install all Python dependencies and hardware support:
+    
+    ```bash
+    uv sync --extra hardware
+    ```
+    
+    <Warning>
+    This installation process takes 15-30 minutes as it compiles several packages for the Pi's ARM architecture.
+    </Warning>
+    
+    The `--extra hardware` flag includes additional packages needed for:
+    - GPIO control and hardware interfaces
+    - Camera and sensor support
+    - Real-time audio processing
+    - LED matrix control libraries
+  </Step>
+</Steps>
+
+## Step 4: Audio System Configuration
+
+Configure the ReSpeaker Hat for microphone input and speaker output.
+
+<Steps>
+  <Step title="Install ReSpeaker Device Tree">
+    Download and install the device tree overlay for ReSpeaker 2-Mics Pi HAT:
+    
+    ```bash
+    # Download device tree source
+    curl https://raw.githubusercontent.com/Seeed-Studio/seeed-linux-dtoverlays/refs/heads/master/overlays/rpi/respeaker-2mic-v2_0-overlay.dts -o respeaker-2mic-v2_0-overlay.dts
+    
+    # Compile device tree overlay
+    dtc -I dts respeaker-2mic-v2_0-overlay.dts -o respeaker-2mic-v2_0-overlay.dtbo
+    
+    # Install overlay temporarily
+    sudo dtoverlay respeaker-2mic-v2_0-overlay.dtbo
+    
+    # Install overlay permanently
+    sudo cp respeaker-2mic-v2_0-overlay.dtbo /boot/firmware/overlays
+    ```
+  </Step>
+  
+  <Step title="Configure Boot Settings">
+    Add ReSpeaker support to boot configuration:
+    
+    ```bash
+    sudo tee -a /boot/firmware/config.txt >/dev/null <<'EOF'
+    dtoverlay=respeaker-2mic-v2_0-overlay
+    dtoverlay=i2s-mmap
+    EOF
+    ```
+    
+    This configuration:
+    - Enables the ReSpeaker device tree overlay
+    - Activates I2S memory mapping for better audio performance
+  </Step>
+  
+  <Step title="Configure Audio System">
+    Set up ALSA (Advanced Linux Sound Architecture) for the ReSpeaker:
+    
+    ```bash
+    sudo tee /etc/asound.conf > /dev/null <<'EOF'
+    # Default capture & playback device = Seeed 2-Mic
+    pcm.!default {
+        type plug
+        slave {
+            pcm "hw:3,0"      # input/output device (Seeed 2-Mic)
+        }
+    }
+    
+    ctl.!default {
+        type hw
+        card 3
+    }
+    EOF
+    ```
+    
+    <Note>
+    The card number (3) may vary depending on your Pi model and other connected devices. We'll verify this in the testing step.
+    </Note>
+  </Step>
+  
+  <Step title="Reboot and Verify Audio">
+    Restart the Pi to apply audio configuration:
+    
+    ```bash
+    sudo reboot
+    ```
+    
+    After reboot, reconnect via SSH and verify audio devices:
+    
+    ```bash
+    aplay -l
+    ```
+    
+    **Expected output should include**:
+    ```bash
+    card 2: seeed2micvoicec [seeed2micvoicec], device 0: 1f000a4000.i2s-tlv320aic3x-hifi tlv320aic3x-hifi-0 [1f000a4000.i2s-tlv320aic3x-hifi tlv320aic3x-hifi-0]
+      Subdevices: 1/1
+      Subdevice #0: subdevice #0
+    ```
+    
+    <Check>
+    ReSpeaker device appears in audio device list with correct driver.
+    </Check>
+  </Step>
+  
+  <Step title="Configure Audio Levels">
+    Set appropriate audio levels using ALSA mixer:
+    
+    ```bash
+    alsamixer
+    ```
+    
+    **In alsamixer**:
+    1. **Press F6** to select audio device
+    2. **Choose "seeed2micvoicec"** from the list
+    3. **Navigate to "Line", "Line DAC", and "PCM" controls**
+    4. **Unmute channels** by pressing 'M' (if showing "MM")
+    5. **Set volume levels** to 100% initially
+    6. **Press Esc** to exit
+    
+    <Tip>
+    Audio channels may be muted by default. Look for "MM" indicators and press 'M' to unmute.
+    </Tip>
+  </Step>
+</Steps>
+
+## Step 5: System Component Testing
+
+Test each LeLamp subsystem to verify proper installation and configuration.
+
+<Steps>
+  <Step title="Test LED Matrix">
+    Verify LED matrix control and effects:
+    
+    ```bash
+    sudo uv run -m lelamp.test.test_rgb
+    ```
+    
+    **Expected behavior**:
+    - LEDs should light up in sequence
+    - Multiple colors and patterns displayed
+    - Smooth transitions between effects
+    
+    <AccordionGroup>
+      <Accordion title="If UV command not found as root">
+        Find UV path and use full path:
+        ```bash
+        which uv
+        # Output example: /home/pi/.local/bin/uv
+        
+        sudo /home/pi/.local/bin/uv run -m lelamp.test.test_rgb
+        ```
+      </Accordion>
+      
+      <Accordion title="Add UV to sudo PATH (optional)">
+        For convenience, add UV to sudo's secure path:
+        ```bash
+        sudo visudo
+        ```
+        
+        Add your user's .local/bin to the secure_path line:
+        ```bash
+        Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/pi/.local/bin"
+        ```
+        
+        <Warning>
+        Be careful when editing sudoers file. Syntax errors can lock you out of sudo access.
+        </Warning>
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+  
+  <Step title="Test Audio System">
+    Verify microphone input and speaker output:
+    
+    ```bash
+    uv run -m lelamp.test.test_audio
+    ```
+    
+    **Expected behavior**:
+    - Test tone plays through speaker
+    - Microphone records and plays back audio
+    - No distortion or audio artifacts
+    
+    <Tabs>
+      <Tab title="Audio Test Success">
+        - Clear audio output from speaker
+        - Microphone picks up voice/sounds
+        - Playback matches recorded audio
+        - No crackling or distortion
+      </Tab>
+      
+      <Tab title="Troubleshooting Audio">
+        **No audio output**:
+        - Check speaker connections
+        - Verify audio levels in alsamixer
+        - Test with different audio card number
+        
+        **No microphone input**:
+        - Check ReSpeaker Hat connection
+        - Verify device tree overlay loaded
+        - Test microphone gain settings
+      </Tab>
+    </Tabs>
+  </Step>
+  
+  <Step title="Test Servo Communication">
+    Verify servo driver connection and motor control:
+    
+    1. **Connect servo driver** to Pi via USB
+    2. **Find servo port**:
+       ```bash
+       uv run lerobot-find-port
+       ```
+    
+    3. **Test servo communication**:
+       ```bash
+       uv run -m lelamp.test.test_motors --id your_lamp_name --port /dev/ttyACM0
+       ```
+    
+    <Note>
+    Replace `your_lamp_name` with the name you used during servo setup, and `/dev/ttyACM0` with the actual port found.
+    </Note>
+    
+    **Expected behavior**:
+    - All 5 servos respond to commands
+    - Smooth movement through range of motion
+    - No communication errors or timeouts
+    - Position feedback matches commanded positions
+  </Step>
+  
+  <Step title="Test Camera (Optional)">
+    If using Pi Camera, test camera functionality:
+    
+    ```bash
+    # Test camera capture
+    libcamera-hello --timeout 2000
+    
+    # Capture test image
+    libcamera-still -o test_image.jpg
+    ```
+    
+    **Expected behavior**:
+    - Camera preview displays for 2 seconds
+    - Test image captured successfully
+    - Image quality appropriate for intended use
+  </Step>
+</Steps>
+
+## Step 6: Network Configuration Optimization
+
+<Steps>
+  <Step title="Configure Static IP (Optional)">
+    For consistent network access, configure a static IP address:
+    
+    ```bash
+    sudo nano /etc/dhcpcd.conf
+    ```
+    
+    Add configuration for your network:
+    ```bash
+    interface wlan0
+    static ip_address=192.168.1.100/24
+    static routers=192.168.1.1
+    static domain_name_servers=192.168.1.1 8.8.8.8
+    ```
+    
+    <Note>
+    Adjust IP addresses to match your network configuration. Ensure the chosen IP doesn't conflict with other devices.
+    </Note>
+  </Step>
+  
+  <Step title="Enable SSH Key Authentication (Recommended)">
+    For improved security, set up SSH key authentication:
+    
+    **On your computer**:
+    ```bash
+    # Generate SSH key pair (if you don't have one)
+    ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+    
+    # Copy public key to Pi
+    ssh-copy-id pi@lelamp-pi.local
+    ```
+    
+    **Test key-based login**:
+    ```bash
+    ssh pi@lelamp-pi.local
+    # Should connect without password prompt
+    ```
+  </Step>
+</Steps>
+
+## System Performance Optimization
+
+<Steps>
+  <Step title="Configure GPU Memory Split">
+    Optimize memory allocation for headless operation:
+    
+    ```bash
+    sudo raspi-config
+    ```
+    
+    Navigate to: **Advanced Options → Memory Split**
+    Set GPU memory to **16MB** (minimum for headless operation)
+  </Step>
+  
+  <Step title="Disable Unnecessary Services">
+    Disable services not needed for LeLamp operation:
+    
+    ```bash
+    # Disable Bluetooth (if not needed)
+    sudo systemctl disable bluetooth
+    
+    # Disable WiFi power management
+    sudo iwconfig wlan0 power off
+    
+    # Add to /etc/rc.local for persistence
+    echo 'iwconfig wlan0 power off' | sudo tee -a /etc/rc.local
+    ```
+  </Step>
+  
+  <Step title="Configure Automatic Startup (Optional)">
+    Set up LeLamp to start automatically on boot:
+    
+    ```bash
+    # Create systemd service file
+    sudo tee /etc/systemd/system/lelamp.service > /dev/null <<'EOF'
+    [Unit]
+    Description=LeLamp Service
+    After=network.target
+    
+    [Service]
+    Type=simple
+    User=pi
+    WorkingDirectory=/home/pi/lelamp_runtime
+    ExecStart=/home/pi/.local/bin/uv run -m lelamp.main --id your_lamp_name
+    Restart=always
+    RestartSec=10
+    
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+    
+    # Enable service
+    sudo systemctl enable lelamp.service
+    ```
+    
+    <Note>
+    Replace `your_lamp_name` with your actual lamp identifier and adjust paths as needed.
+    </Note>
+  </Step>
+</Steps>
+
+## Final System Verification
+
+<Steps>
+  <Step title="Complete System Test">
+    Run comprehensive system test to verify all components:
+    
+    ```bash
+    # Test all subsystems
+    sudo uv run -m lelamp.test.test_all_systems --id your_lamp_name --port /dev/ttyACM0
+    ```
+    
+    This test verifies:
+    - Servo motor control and coordination
+    - LED matrix effects and control
+    - Audio input/output functionality
+    - System performance and stability
+  </Step>
+  
+  <Step title="Performance Monitoring">
+    Monitor system performance during operation:
+    
+    ```bash
+    # Check CPU and memory usage
+    htop
+    
+    # Monitor system temperature
+    vcgencmd measure_temp
+    
+    # Check system logs for errors
+    sudo journalctl -f
+    ```
+    
+    **Healthy system indicators**:
+    - CPU usage < 50% during normal operation
+    - Temperature < 70°C under load
+    - No error messages in system logs
+    - Stable network connectivity
+  </Step>
+</Steps>
+
+## Setup Completion Checklist
+
+<AccordionGroup>
+  <Accordion title="Operating System">
+    - [ ] Raspberry Pi OS Lite installed and configured
+    - [ ] SSH access working reliably
+    - [ ] Network connectivity stable
+    - [ ] System packages updated to latest versions
+    - [ ] User account properly configured
+  </Accordion>
+  
+  <Accordion title="LeLamp Runtime">
+    - [ ] Runtime repository cloned successfully
+    - [ ] UV package manager installed and working
+    - [ ] All Python dependencies installed
+    - [ ] Hardware support packages configured
+    - [ ] Runtime tests pass without errors
+  </Accordion>
+  
+  <Accordion title="Hardware Integration">
+    - [ ] ReSpeaker Hat configured and working
+    - [ ] Audio input/output tested successfully
+    - [ ] LED matrix control functional
+    - [ ] Servo communication established
+    - [ ] Camera working (if applicable)
+  </Accordion>
+  
+  <Accordion title="System Optimization">
+    - [ ] Performance optimizations applied
+    - [ ] Unnecessary services disabled
+    - [ ] Memory allocation optimized
+    - [ ] Network configuration stable
+    - [ ] System monitoring tools configured
+  </Accordion>
+</AccordionGroup>
+
+## What You Should Have
+
+At this stage, you should have:
+
+- **Fully configured Raspberry Pi** running optimized LeLamp software
+- **Working audio system** with microphone input and speaker output
+- **Functional LED matrix** with programmable effects
+- **Reliable servo communication** for motor control
+- **Stable network connectivity** for remote access and control
+- **Comprehensive testing** confirming all subsystems work correctly
+
+<Check>
+**Raspberry Pi Setup Complete!** Your LeLamp is now ready for calibration and operation.
+</Check>
+
+---
+
+**Previous**: [Assembly Guide](/assembly-guide) | **Next**: [Lamp Control](/lamp-control)
+
+<Tip>
+Document your configuration settings and test results. This information will be valuable for troubleshooting and future maintenance.
+</Tip>
